@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'database/database_helper.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
 import 'screens/auth/auth_screen.dart';
