@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('en')) {
+class LocaleNotifier extends Notifier<Locale> {
+  @override
+  Locale build() {
     _loadSavedLocale();
+    return const Locale('en');
   }
 
   Future<void> _loadSavedLocale() async {
@@ -34,6 +36,6 @@ class LocaleNotifier extends StateNotifier<Locale> {
   }
 }
 
-final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
+final localeProvider = NotifierProvider<LocaleNotifier, Locale>(() {
   return LocaleNotifier();
 });

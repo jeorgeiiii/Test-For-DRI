@@ -28,14 +28,16 @@ class SurveyState {
   }
 }
 
-class SurveyNotifier extends StateNotifier<SurveyState> {
-  SurveyNotifier()
-      : super(const SurveyState(
-          currentPage: 0,
-          totalPages: 21, // Based on questionnaire sections
-          surveyData: {},
-          isLoading: false,
-        ));
+class SurveyNotifier extends Notifier<SurveyState> {
+  @override
+  SurveyState build() {
+    return const SurveyState(
+      currentPage: 0,
+      totalPages: 21, // Based on questionnaire sections
+      surveyData: {},
+      isLoading: false,
+    );
+  }
 
   void nextPage() {
     if (state.currentPage < state.totalPages - 1) {
@@ -81,6 +83,6 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
   }
 }
 
-final surveyProvider = StateNotifierProvider<SurveyNotifier, SurveyState>((ref) {
+final surveyProvider = NotifierProvider<SurveyNotifier, SurveyState>(() {
   return SurveyNotifier();
 });

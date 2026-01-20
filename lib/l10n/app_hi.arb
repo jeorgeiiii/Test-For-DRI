@@ -201,5 +201,8 @@
   "networkError": "नेटवर्क त्रुटि",
   "syncError": "सिंक त्रुटि",
   "loading": "लोड हो रहा है...",
-  "retry": "पुनः प्रयास करें"
+  "retry": "पुनः प्रयास करें",
+  "errorSubmittingSurvey": "सर्वेक्षण सबमिट करने में त्रुटि: {error}",
+  "failedToGetLocation": "स्थान प्राप्त करने में विफल: {error}",
+  "exportFailed": "निर्यात विफल: {error}"
 }

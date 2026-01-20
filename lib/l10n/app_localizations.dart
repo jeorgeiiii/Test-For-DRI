@@ -1315,6 +1315,840 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got It'**
+  String get gotIt;
+
+  /// No description provided for @help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// No description provided for @stepOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String stepOfTotal(Object current, Object total);
+
+  /// No description provided for @exportAllSurveysSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All surveys exported successfully'**
+  String get exportAllSurveysSuccess;
+
+  /// No description provided for @exportSummarySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary exported successfully'**
+  String get exportSummarySuccess;
+
+  /// No description provided for @exportBackupSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup exported successfully'**
+  String get exportBackupSuccess;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String exportFailed(Object error);
+
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get exportData;
+
+  /// No description provided for @exportDataDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Export survey data'**
+  String get exportDataDescription;
+
+  /// No description provided for @exportAllSurveys.
+  ///
+  /// In en, this message translates to:
+  /// **'Export All Surveys'**
+  String get exportAllSurveys;
+
+  /// No description provided for @exportAllSurveysDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Export all survey data'**
+  String get exportAllSurveysDesc;
+
+  /// No description provided for @exportSummaryReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Summary Report'**
+  String get exportSummaryReport;
+
+  /// No description provided for @exportSummaryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Export summary report'**
+  String get exportSummaryDesc;
+
+  /// No description provided for @exportJSONBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Export JSON Backup'**
+  String get exportJSONBackup;
+
+  /// No description provided for @exportBackupDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Export JSON backup'**
+  String get exportBackupDesc;
+
+  /// No description provided for @exportInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Info'**
+  String get exportInfo;
+
+  /// No description provided for @exportInfoDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Information about export'**
+  String get exportInfoDesc;
+
+  /// No description provided for @provideLivestockDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide Livestock Details'**
+  String get provideLivestockDetails;
+
+  /// No description provided for @animal.
+  ///
+  /// In en, this message translates to:
+  /// **'Animal'**
+  String get animal;
+
+  /// No description provided for @noOfAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'No. of Animals'**
+  String get noOfAnimals;
+
+  /// No description provided for @addAnotherAnimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Another Animal'**
+  String get addAnotherAnimal;
+
+  /// No description provided for @totalAnimalTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Animal Types: {count}'**
+  String totalAnimalTypes(Object count);
+
+  /// No description provided for @animalNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Animal {number}'**
+  String animalNumber(Object number);
+
+  /// No description provided for @removeAnimal.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Animal'**
+  String get removeAnimal;
+
+  /// No description provided for @cropProductivityAndArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Productivity and Area'**
+  String get cropProductivityAndArea;
+
+  /// No description provided for @provideCropProductionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide Crop Production Details'**
+  String get provideCropProductionDetails;
+
+  /// No description provided for @crop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get crop;
+
+  /// No description provided for @productivityQtlAcre.
+  ///
+  /// In en, this message translates to:
+  /// **'Productivity (Qtl/Acre)'**
+  String get productivityQtlAcre;
+
+  /// No description provided for @totalProd.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Prod'**
+  String get totalProd;
+
+  /// No description provided for @consumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed'**
+  String get consumed;
+
+  /// No description provided for @soldQtlRs.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold (Qtl/Rs)'**
+  String get soldQtlRs;
+
+  /// No description provided for @addAnotherCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Another Crop'**
+  String get addAnotherCrop;
+
+  /// No description provided for @totalCrops.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Crops: {count}'**
+  String totalCrops(Object count);
+
+  /// No description provided for @cropNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop {number}'**
+  String cropNumber(Object number);
+
+  /// No description provided for @removeCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Crop'**
+  String get removeCrop;
+
+  /// No description provided for @area.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get area;
+
+  /// No description provided for @prod.
+  ///
+  /// In en, this message translates to:
+  /// **'Prod'**
+  String get prod;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @soldQtlAndRs.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold (Qtl & Rs)'**
+  String get soldQtlAndRs;
+
+  /// No description provided for @healthIssuesAndDiseases.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Issues and Diseases'**
+  String get healthIssuesAndDiseases;
+
+  /// No description provided for @describeMajorHealthIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe Major Health Issues'**
+  String get describeMajorHealthIssues;
+
+  /// No description provided for @describeHealthIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe Health Issues'**
+  String get describeHealthIssues;
+
+  /// No description provided for @describeHealthIssuesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe health issues'**
+  String get describeHealthIssuesHint;
+
+  /// No description provided for @leaveBlankIfNoIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if no issues'**
+  String get leaveBlankIfNoIssues;
+
+  /// No description provided for @healthInfoConfidential.
+  ///
+  /// In en, this message translates to:
+  /// **'Health info is confidential'**
+  String get healthInfoConfidential;
+
+  /// No description provided for @commonHealthIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Health Issues'**
+  String get commonHealthIssues;
+
+  /// No description provided for @optionalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional Section'**
+  String get optionalSection;
+
+  /// No description provided for @healthInfoSensitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Health info is sensitive'**
+  String get healthInfoSensitive;
+
+  /// No description provided for @legalDisputesCourtCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Disputes/Court Cases'**
+  String get legalDisputesCourtCases;
+
+  /// No description provided for @describeLegalDisputes.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe Legal Disputes'**
+  String get describeLegalDisputes;
+
+  /// No description provided for @describeLegalDisputesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe Legal Disputes'**
+  String get describeLegalDisputesLabel;
+
+  /// No description provided for @describeLegalDisputesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe legal disputes'**
+  String get describeLegalDisputesHint;
+
+  /// No description provided for @leaveBlankIfNoDisputes.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if no disputes'**
+  String get leaveBlankIfNoDisputes;
+
+  /// No description provided for @legalInfoConfidential.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal info is confidential'**
+  String get legalInfoConfidential;
+
+  /// No description provided for @commonDisputes.
+  ///
+  /// In en, this message translates to:
+  /// **'Common Disputes'**
+  String get commonDisputes;
+
+  /// No description provided for @optionalDisputesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional Disputes Section'**
+  String get optionalDisputesSection;
+
+  /// No description provided for @selectEntertainmentFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Entertainment Facilities'**
+  String get selectEntertainmentFacilities;
+
+  /// No description provided for @smartMobilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Mobile Phone'**
+  String get smartMobilePhone;
+
+  /// No description provided for @androidIosSmartphones.
+  ///
+  /// In en, this message translates to:
+  /// **'Android/iOS Smartphones'**
+  String get androidIosSmartphones;
+
+  /// No description provided for @numberOfSmartphones.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Smartphones'**
+  String get numberOfSmartphones;
+
+  /// No description provided for @enterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Count'**
+  String get enterCount;
+
+  /// No description provided for @analogMobilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Analog Mobile Phone'**
+  String get analogMobilePhone;
+
+  /// No description provided for @basicMobilePhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Mobile Phones'**
+  String get basicMobilePhones;
+
+  /// No description provided for @numberOfAnalogPhones.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Analog Phones'**
+  String get numberOfAnalogPhones;
+
+  /// No description provided for @tvEntertainmentNews.
+  ///
+  /// In en, this message translates to:
+  /// **'TV Entertainment/News'**
+  String get tvEntertainmentNews;
+
+  /// No description provided for @radioNewsMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio News/Music'**
+  String get radioNewsMusic;
+
+  /// No description provided for @gamesGamingDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Games/Gaming Devices'**
+  String get gamesGamingDevices;
+
+  /// No description provided for @videoGamesBoardGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Games/Board Games'**
+  String get videoGamesBoardGames;
+
+  /// No description provided for @otherEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Entertainment'**
+  String get otherEntertainment;
+
+  /// No description provided for @newspaperInternetEtc.
+  ///
+  /// In en, this message translates to:
+  /// **'Newspaper/Internet etc'**
+  String get newspaperInternetEtc;
+
+  /// No description provided for @specifyOtherEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify Other Entertainment'**
+  String get specifyOtherEntertainment;
+
+  /// No description provided for @entertainmentExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment Examples'**
+  String get entertainmentExamples;
+
+  /// No description provided for @entertainmentInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment Info'**
+  String get entertainmentInfo;
+
+  /// No description provided for @selectEntertainmentFacility.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Entertainment Facility'**
+  String get selectEntertainmentFacility;
+
+  /// No description provided for @selectAgriculturalEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Agricultural Equipment'**
+  String get selectAgriculturalEquipment;
+
+  /// No description provided for @otherEquipmentSpecify.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Equipment (Specify)'**
+  String get otherEquipmentSpecify;
+
+  /// No description provided for @provideDetailsForEachFamilyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Provide Details for Each Family Member'**
+  String get provideDetailsForEachFamilyMember;
+
+  /// No description provided for @totalFamilyMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Family Members: {count}'**
+  String totalFamilyMembers(Object count);
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Member'**
+  String get removeMember;
+
+  /// No description provided for @pleaseEnterMemberName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter member name'**
+  String get pleaseEnterMemberName;
+
+  /// No description provided for @pleaseEnterAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter age'**
+  String get pleaseEnterAge;
+
+  /// No description provided for @pleaseEnterValidAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter valid age'**
+  String get pleaseEnterValidAge;
+
+  /// No description provided for @pleaseSelectGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select gender'**
+  String get pleaseSelectGender;
+
+  /// No description provided for @selectFertilizerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Fertilizer Type'**
+  String get selectFertilizerType;
+
+  /// No description provided for @errorSubmittingSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Error submitting survey: {error}'**
+  String errorSubmittingSurvey(Object error);
+
+  /// No description provided for @thankYouParticipating.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for participating'**
+  String get thankYouParticipating;
+
+  /// No description provided for @surveySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Survey Summary'**
+  String get surveySummary;
+
+  /// No description provided for @familyInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Information'**
+  String get familyInformation;
+
+  /// No description provided for @economicDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Economic Details'**
+  String get economicDetails;
+
+  /// No description provided for @agriculturalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Agricultural Data'**
+  String get agriculturalData;
+
+  /// No description provided for @healthEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Health & Education'**
+  String get healthEducation;
+
+  /// No description provided for @migrationTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Migration & Training'**
+  String get migrationTraining;
+
+  /// No description provided for @importantNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Important Notes'**
+  String get importantNotes;
+
+  /// No description provided for @dataStoredSecurely.
+  ///
+  /// In en, this message translates to:
+  /// **'Data stored securely'**
+  String get dataStoredSecurely;
+
+  /// No description provided for @personalInfoConfidential.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal info is confidential'**
+  String get personalInfoConfidential;
+
+  /// No description provided for @surveyResponsesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Survey responses help'**
+  String get surveyResponsesHelp;
+
+  /// No description provided for @contactLocalAuthorities.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact local authorities'**
+  String get contactLocalAuthorities;
+
+  /// No description provided for @submittingSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting Survey'**
+  String get submittingSurvey;
+
+  /// No description provided for @submitSurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Survey'**
+  String get submitSurvey;
+
+  /// No description provided for @thankYouContribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your contribution'**
+  String get thankYouContribution;
+
+  /// No description provided for @failedToGetLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get location: {error}'**
+  String failedToGetLocation(Object error);
+
+  /// No description provided for @locationInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Information'**
+  String get locationInformation;
+
+  /// No description provided for @getCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Current Location'**
+  String get getCurrentLocation;
+
+  /// No description provided for @locationDetectedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Location detected successfully'**
+  String get locationDetectedSuccessfully;
+
+  /// No description provided for @selectIrrigationFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Irrigation Facilities'**
+  String get selectIrrigationFacilities;
+
+  /// No description provided for @canalIrrigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Canal Irrigation'**
+  String get canalIrrigation;
+
+  /// No description provided for @governmentCanalWaterSupply.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Canal Water Supply'**
+  String get governmentCanalWaterSupply;
+
+  /// No description provided for @tubeWellBoreWell.
+  ///
+  /// In en, this message translates to:
+  /// **'Tube Well/Bore Well'**
+  String get tubeWellBoreWell;
+
+  /// No description provided for @undergroundWaterExtraction.
+  ///
+  /// In en, this message translates to:
+  /// **'Underground Water Extraction'**
+  String get undergroundWaterExtraction;
+
+  /// No description provided for @pondsLakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Ponds/Lakes'**
+  String get pondsLakes;
+
+  /// No description provided for @naturalWaterStorageBodies.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural Water Storage Bodies'**
+  String get naturalWaterStorageBodies;
+
+  /// No description provided for @otherIrrigationFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Irrigation Facilities'**
+  String get otherIrrigationFacilities;
+
+  /// No description provided for @dripSprinklerEtc.
+  ///
+  /// In en, this message translates to:
+  /// **'Drip/Sprinkler etc'**
+  String get dripSprinklerEtc;
+
+  /// No description provided for @selectIrrigationMethodsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Irrigation Methods Info'**
+  String get selectIrrigationMethodsInfo;
+
+  /// No description provided for @pleaseSelectIrrigationFacility.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select irrigation facility'**
+  String get pleaseSelectIrrigationFacility;
+
+  /// No description provided for @landHoldingInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Land Holding Information'**
+  String get landHoldingInformation;
+
+  /// No description provided for @totalIrrigatedArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Irrigated Area'**
+  String get totalIrrigatedArea;
+
+  /// No description provided for @enterAreaInAcres.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Area in Acres'**
+  String get enterAreaInAcres;
+
+  /// No description provided for @pleaseEnterIrrigatedArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter irrigated area'**
+  String get pleaseEnterIrrigatedArea;
+
+  /// No description provided for @pleaseEnterValidArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter valid area'**
+  String get pleaseEnterValidArea;
+
+  /// No description provided for @totalCultivableArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cultivable Area'**
+  String get totalCultivableArea;
+
+  /// No description provided for @pleaseEnterCultivableArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter cultivable area'**
+  String get pleaseEnterCultivableArea;
+
+  /// No description provided for @orchardPlantsIfAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Orchard Plants (If Any)'**
+  String get orchardPlantsIfAny;
+
+  /// No description provided for @orchardPlantsExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Orchard Plants Example'**
+  String get orchardPlantsExample;
+
+  /// No description provided for @landMeasurementInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Land Measurement Info'**
+  String get landMeasurementInfo;
+
+  /// No description provided for @selectDrinkingWaterSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Drinking Water Sources'**
+  String get selectDrinkingWaterSources;
+
+  /// No description provided for @manualWaterPumps.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Water Pumps'**
+  String get manualWaterPumps;
+
+  /// No description provided for @distanceFromHomeMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance from Home (Meters)'**
+  String get distanceFromHomeMeters;
+
+  /// No description provided for @enterDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Distance'**
+  String get enterDistance;
+
+  /// No description provided for @meters.
+  ///
+  /// In en, this message translates to:
+  /// **'Meters'**
+  String get meters;
+
+  /// No description provided for @openWellOrBoreWell.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Well or Bore Well'**
+  String get openWellOrBoreWell;
+
+  /// No description provided for @poweredWaterExtraction.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered Water Extraction'**
+  String get poweredWaterExtraction;
+
+  /// No description provided for @nalJaalPipedWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Nal Jaal/Piped Water'**
+  String get nalJaalPipedWater;
+
+  /// No description provided for @governmentPipedWaterSupply.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Piped Water Supply'**
+  String get governmentPipedWaterSupply;
+
+  /// No description provided for @otherSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Sources'**
+  String get otherSources;
+
+  /// No description provided for @riverPondTankerEtc.
+  ///
+  /// In en, this message translates to:
+  /// **'River/Pond/Tanker etc'**
+  String get riverPondTankerEtc;
+
+  /// No description provided for @cleanWaterAccessInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean Water Access Info'**
+  String get cleanWaterAccessInfo;
+
+  /// No description provided for @selectDrinkingWaterSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Drinking Water Source'**
+  String get selectDrinkingWaterSource;
 }
 
 class _AppLocalizationsDelegate

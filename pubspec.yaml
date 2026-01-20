@@ -33,18 +33,22 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  google_fonts: ^6.2.1
-  flutter_riverpod: ^2.5.1
+  google_fonts: ^7.0.2
+  flutter_riverpod: ^3.2.0
   supabase_flutter: ^2.5.1
-  flutter_dotenv: ^5.1.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_dotenv: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
   sqflite: ^2.3.0
   path_provider: ^2.1.2
   intl: ^0.20.2
-  animate_do: ^3.3.4
+  animate_do: ^4.2.0
   equatable: ^2.0.5
   flutter_localizations:
     sdk: flutter
+  csv: ^5.1.1
+  universal_html: ^2.2.4
+  connectivity_plus: ^6.0.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

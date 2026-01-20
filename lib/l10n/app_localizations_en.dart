@@ -616,4 +616,441 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get gotIt => 'Got It';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String stepOfTotal(Object current, Object total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get exportAllSurveysSuccess => 'All surveys exported successfully';
+
+  @override
+  String get exportSummarySuccess => 'Summary exported successfully';
+
+  @override
+  String get exportBackupSuccess => 'Backup exported successfully';
+
+  @override
+  String exportFailed(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get exportData => 'Export Data';
+
+  @override
+  String get exportDataDescription => 'Export survey data';
+
+  @override
+  String get exportAllSurveys => 'Export All Surveys';
+
+  @override
+  String get exportAllSurveysDesc => 'Export all survey data';
+
+  @override
+  String get exportSummaryReport => 'Export Summary Report';
+
+  @override
+  String get exportSummaryDesc => 'Export summary report';
+
+  @override
+  String get exportJSONBackup => 'Export JSON Backup';
+
+  @override
+  String get exportBackupDesc => 'Export JSON backup';
+
+  @override
+  String get exportInfo => 'Export Info';
+
+  @override
+  String get exportInfoDesc => 'Information about export';
+
+  @override
+  String get provideLivestockDetails => 'Provide Livestock Details';
+
+  @override
+  String get animal => 'Animal';
+
+  @override
+  String get noOfAnimals => 'No. of Animals';
+
+  @override
+  String get addAnotherAnimal => 'Add Another Animal';
+
+  @override
+  String totalAnimalTypes(Object count) {
+    return 'Total Animal Types: $count';
+  }
+
+  @override
+  String animalNumber(Object number) {
+    return 'Animal $number';
+  }
+
+  @override
+  String get removeAnimal => 'Remove Animal';
+
+  @override
+  String get cropProductivityAndArea => 'Crop Productivity and Area';
+
+  @override
+  String get provideCropProductionDetails => 'Provide Crop Production Details';
+
+  @override
+  String get crop => 'Crop';
+
+  @override
+  String get productivityQtlAcre => 'Productivity (Qtl/Acre)';
+
+  @override
+  String get totalProd => 'Total Prod';
+
+  @override
+  String get consumed => 'Consumed';
+
+  @override
+  String get soldQtlRs => 'Sold (Qtl/Rs)';
+
+  @override
+  String get addAnotherCrop => 'Add Another Crop';
+
+  @override
+  String totalCrops(Object count) {
+    return 'Total Crops: $count';
+  }
+
+  @override
+  String cropNumber(Object number) {
+    return 'Crop $number';
+  }
+
+  @override
+  String get removeCrop => 'Remove Crop';
+
+  @override
+  String get area => 'Area';
+
+  @override
+  String get prod => 'Prod';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get soldQtlAndRs => 'Sold (Qtl & Rs)';
+
+  @override
+  String get healthIssuesAndDiseases => 'Health Issues and Diseases';
+
+  @override
+  String get describeMajorHealthIssues => 'Describe Major Health Issues';
+
+  @override
+  String get describeHealthIssues => 'Describe Health Issues';
+
+  @override
+  String get describeHealthIssuesHint => 'Describe health issues';
+
+  @override
+  String get leaveBlankIfNoIssues => 'Leave blank if no issues';
+
+  @override
+  String get healthInfoConfidential => 'Health info is confidential';
+
+  @override
+  String get commonHealthIssues => 'Common Health Issues';
+
+  @override
+  String get optionalSection => 'Optional Section';
+
+  @override
+  String get healthInfoSensitive => 'Health info is sensitive';
+
+  @override
+  String get legalDisputesCourtCases => 'Legal Disputes/Court Cases';
+
+  @override
+  String get describeLegalDisputes => 'Describe Legal Disputes';
+
+  @override
+  String get describeLegalDisputesLabel => 'Describe Legal Disputes';
+
+  @override
+  String get describeLegalDisputesHint => 'Describe legal disputes';
+
+  @override
+  String get leaveBlankIfNoDisputes => 'Leave blank if no disputes';
+
+  @override
+  String get legalInfoConfidential => 'Legal info is confidential';
+
+  @override
+  String get commonDisputes => 'Common Disputes';
+
+  @override
+  String get optionalDisputesSection => 'Optional Disputes Section';
+
+  @override
+  String get selectEntertainmentFacilities => 'Select Entertainment Facilities';
+
+  @override
+  String get smartMobilePhone => 'Smart Mobile Phone';
+
+  @override
+  String get androidIosSmartphones => 'Android/iOS Smartphones';
+
+  @override
+  String get numberOfSmartphones => 'Number of Smartphones';
+
+  @override
+  String get enterCount => 'Enter Count';
+
+  @override
+  String get analogMobilePhone => 'Analog Mobile Phone';
+
+  @override
+  String get basicMobilePhones => 'Basic Mobile Phones';
+
+  @override
+  String get numberOfAnalogPhones => 'Number of Analog Phones';
+
+  @override
+  String get tvEntertainmentNews => 'TV Entertainment/News';
+
+  @override
+  String get radioNewsMusic => 'Radio News/Music';
+
+  @override
+  String get gamesGamingDevices => 'Games/Gaming Devices';
+
+  @override
+  String get videoGamesBoardGames => 'Video Games/Board Games';
+
+  @override
+  String get otherEntertainment => 'Other Entertainment';
+
+  @override
+  String get newspaperInternetEtc => 'Newspaper/Internet etc';
+
+  @override
+  String get specifyOtherEntertainment => 'Specify Other Entertainment';
+
+  @override
+  String get entertainmentExamples => 'Entertainment Examples';
+
+  @override
+  String get entertainmentInfo => 'Entertainment Info';
+
+  @override
+  String get selectEntertainmentFacility => 'Select Entertainment Facility';
+
+  @override
+  String get selectAgriculturalEquipment => 'Select Agricultural Equipment';
+
+  @override
+  String get otherEquipmentSpecify => 'Other Equipment (Specify)';
+
+  @override
+  String get provideDetailsForEachFamilyMember =>
+      'Provide Details for Each Family Member';
+
+  @override
+  String totalFamilyMembers(Object count) {
+    return 'Total Family Members: $count';
+  }
+
+  @override
+  String get required => 'Required';
+
+  @override
+  String get removeMember => 'Remove Member';
+
+  @override
+  String get pleaseEnterMemberName => 'Please enter member name';
+
+  @override
+  String get pleaseEnterAge => 'Please enter age';
+
+  @override
+  String get pleaseEnterValidAge => 'Please enter valid age';
+
+  @override
+  String get pleaseSelectGender => 'Please select gender';
+
+  @override
+  String get selectFertilizerType => 'Select Fertilizer Type';
+
+  @override
+  String errorSubmittingSurvey(Object error) {
+    return 'Error submitting survey: $error';
+  }
+
+  @override
+  String get thankYouParticipating => 'Thank you for participating';
+
+  @override
+  String get surveySummary => 'Survey Summary';
+
+  @override
+  String get familyInformation => 'Family Information';
+
+  @override
+  String get economicDetails => 'Economic Details';
+
+  @override
+  String get agriculturalData => 'Agricultural Data';
+
+  @override
+  String get healthEducation => 'Health & Education';
+
+  @override
+  String get migrationTraining => 'Migration & Training';
+
+  @override
+  String get importantNotes => 'Important Notes';
+
+  @override
+  String get dataStoredSecurely => 'Data stored securely';
+
+  @override
+  String get personalInfoConfidential => 'Personal info is confidential';
+
+  @override
+  String get surveyResponsesHelp => 'Survey responses help';
+
+  @override
+  String get contactLocalAuthorities => 'Contact local authorities';
+
+  @override
+  String get submittingSurvey => 'Submitting Survey';
+
+  @override
+  String get submitSurvey => 'Submit Survey';
+
+  @override
+  String get thankYouContribution => 'Thank you for your contribution';
+
+  @override
+  String failedToGetLocation(Object error) {
+    return 'Failed to get location: $error';
+  }
+
+  @override
+  String get locationInformation => 'Location Information';
+
+  @override
+  String get getCurrentLocation => 'Get Current Location';
+
+  @override
+  String get locationDetectedSuccessfully => 'Location detected successfully';
+
+  @override
+  String get selectIrrigationFacilities => 'Select Irrigation Facilities';
+
+  @override
+  String get canalIrrigation => 'Canal Irrigation';
+
+  @override
+  String get governmentCanalWaterSupply => 'Government Canal Water Supply';
+
+  @override
+  String get tubeWellBoreWell => 'Tube Well/Bore Well';
+
+  @override
+  String get undergroundWaterExtraction => 'Underground Water Extraction';
+
+  @override
+  String get pondsLakes => 'Ponds/Lakes';
+
+  @override
+  String get naturalWaterStorageBodies => 'Natural Water Storage Bodies';
+
+  @override
+  String get otherIrrigationFacilities => 'Other Irrigation Facilities';
+
+  @override
+  String get dripSprinklerEtc => 'Drip/Sprinkler etc';
+
+  @override
+  String get selectIrrigationMethodsInfo => 'Select Irrigation Methods Info';
+
+  @override
+  String get pleaseSelectIrrigationFacility =>
+      'Please select irrigation facility';
+
+  @override
+  String get landHoldingInformation => 'Land Holding Information';
+
+  @override
+  String get totalIrrigatedArea => 'Total Irrigated Area';
+
+  @override
+  String get enterAreaInAcres => 'Enter Area in Acres';
+
+  @override
+  String get pleaseEnterIrrigatedArea => 'Please enter irrigated area';
+
+  @override
+  String get pleaseEnterValidArea => 'Please enter valid area';
+
+  @override
+  String get totalCultivableArea => 'Total Cultivable Area';
+
+  @override
+  String get pleaseEnterCultivableArea => 'Please enter cultivable area';
+
+  @override
+  String get orchardPlantsIfAny => 'Orchard Plants (If Any)';
+
+  @override
+  String get orchardPlantsExample => 'Orchard Plants Example';
+
+  @override
+  String get landMeasurementInfo => 'Land Measurement Info';
+
+  @override
+  String get selectDrinkingWaterSources => 'Select Drinking Water Sources';
+
+  @override
+  String get manualWaterPumps => 'Manual Water Pumps';
+
+  @override
+  String get distanceFromHomeMeters => 'Distance from Home (Meters)';
+
+  @override
+  String get enterDistance => 'Enter Distance';
+
+  @override
+  String get meters => 'Meters';
+
+  @override
+  String get openWellOrBoreWell => 'Open Well or Bore Well';
+
+  @override
+  String get poweredWaterExtraction => 'Powered Water Extraction';
+
+  @override
+  String get nalJaalPipedWater => 'Nal Jaal/Piped Water';
+
+  @override
+  String get governmentPipedWaterSupply => 'Government Piped Water Supply';
+
+  @override
+  String get otherSources => 'Other Sources';
+
+  @override
+  String get riverPondTankerEtc => 'River/Pond/Tanker etc';
+
+  @override
+  String get cleanWaterAccessInfo => 'Clean Water Access Info';
+
+  @override
+  String get selectDrinkingWaterSource => 'Select Drinking Water Source';
 }
