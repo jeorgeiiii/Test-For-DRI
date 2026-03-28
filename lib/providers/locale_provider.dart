@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocaleNotifier extends Notifier<Locale> {
   @override
   Locale build() {
-    _loadSavedLocale();
+    // Load saved locale asynchronously
+    Future.microtask(() => _loadSavedLocale());
     return const Locale('en');
   }
 

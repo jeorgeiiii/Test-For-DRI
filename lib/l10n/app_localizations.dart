@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Family Survey'**
+  /// **'DRI PRA App'**
   String get appTitle;
 
   /// No description provided for @startFamilyQuiz.
@@ -793,6 +793,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Electric Connection'**
   String get electricConnection;
+
+  /// No description provided for @electricalConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrical Connection'**
+  String get electricalConnection;
 
   /// No description provided for @nutritionalGarden.
   ///
@@ -2149,6 +2155,618 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Drinking Water Source'**
   String get selectDrinkingWaterSource;
+
+  /// No description provided for @familySurvey.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Survey'**
+  String get familySurvey;
+
+  /// No description provided for @deendayalResearchInstitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Deendayal Research Institute'**
+  String get deendayalResearchInstitute;
+
+  /// No description provided for @helpAndSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpAndSupport;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version 1.0.0'**
+  String get version;
+
+  /// No description provided for @surveyUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Survey User'**
+  String get surveyUser;
+
+  /// No description provided for @phoneNumberDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone: +91 2525252525'**
+  String get phoneNumberDisplay;
+
+  /// No description provided for @profileManagementMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile management features will be implemented here.'**
+  String get profileManagementMessage;
+
+  /// No description provided for @languageChangedToEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Language changed to English'**
+  String get languageChangedToEnglish;
+
+  /// No description provided for @languageChangedToHindi.
+  ///
+  /// In en, this message translates to:
+  /// **'भाषा हिंदी में बदल दी गई'**
+  String get languageChangedToHindi;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @fontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get fontSize;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to Default'**
+  String get resetToDefault;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @dataManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get dataManagement;
+
+  /// No description provided for @userGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'User Guide'**
+  String get userGuide;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupport;
+
+  /// No description provided for @reportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Issue'**
+  String get reportIssue;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @familySurveyApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Survey App'**
+  String get familySurveyApp;
+
+  /// No description provided for @appDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Comprehensive family survey application for rural development and government schemes.'**
+  String get appDescription;
+
+  /// No description provided for @developedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed by Deendayal Research Institute'**
+  String get developedBy;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logoutConfirm;
+
+  /// No description provided for @logoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout? Your current survey progress will be saved locally.'**
+  String get logoutMessage;
+
+  /// No description provided for @villageInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Village Information'**
+  String get villageInformation;
+
+  /// No description provided for @step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1'**
+  String get step1;
+
+  /// No description provided for @fillVillageDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill all the details about the village'**
+  String get fillVillageDetails;
+
+  /// No description provided for @nameOfVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of village *'**
+  String get nameOfVillage;
+
+  /// No description provided for @officialNameOfVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Official name of the village'**
+  String get officialNameOfVillage;
+
+  /// No description provided for @enterVillageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter village name'**
+  String get enterVillageName;
+
+  /// No description provided for @educationalFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational Facilities'**
+  String get educationalFacilities;
+
+  /// No description provided for @step7.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 7'**
+  String get step7;
+
+  /// No description provided for @otherEducationalFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Other educational facilities and type'**
+  String get otherEducationalFacilities;
+
+  /// No description provided for @numberOfAnganwadi.
+  ///
+  /// In en, this message translates to:
+  /// **'a) No. of Anganwadi'**
+  String get numberOfAnganwadi;
+
+  /// No description provided for @anganwadiCenters.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Anganwadi centers in village'**
+  String get anganwadiCenters;
+
+  /// No description provided for @enterNumberOfAnganwadi.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter number of Anganwadi'**
+  String get enterNumberOfAnganwadi;
+
+  /// No description provided for @numberOfShikshaGuarantee.
+  ///
+  /// In en, this message translates to:
+  /// **'b) No. of Shiksha Guarantee Beneficiaries'**
+  String get numberOfShikshaGuarantee;
+
+  /// No description provided for @shikshaGuaranteeBeneficiaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of beneficiaries under Shiksha Guarantee Scheme'**
+  String get shikshaGuaranteeBeneficiaries;
+
+  /// No description provided for @enterNumberOfBeneficiaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter number of beneficiaries'**
+  String get enterNumberOfBeneficiaries;
+
+  /// No description provided for @otherEducationalFacilitiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Educational Facilities'**
+  String get otherEducationalFacilitiesTitle;
+
+  /// No description provided for @otherEducationalFacilitiesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Other educational facilities in village'**
+  String get otherEducationalFacilitiesDesc;
+
+  /// No description provided for @facilityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility Name (e.g., Coaching Center, Library, etc.)'**
+  String get facilityName;
+
+  /// No description provided for @numberOfSuchFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of such facilities'**
+  String get numberOfSuchFacilities;
+
+  /// No description provided for @infrastructureInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Infrastructure Information'**
+  String get infrastructureInformation;
+
+  /// No description provided for @step5.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 5'**
+  String get step5;
+
+  /// No description provided for @availabilityApproachRoadsInternalLanes.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability of Approach Roads and Internal Lanes'**
+  String get availabilityApproachRoadsInternalLanes;
+
+  /// No description provided for @approachRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Approach Roads'**
+  String get approachRoads;
+
+  /// No description provided for @availabilityConditionApproachRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability and condition of approach roads to village'**
+  String get availabilityConditionApproachRoads;
+
+  /// No description provided for @areApproachRoadsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Are Approach Roads available?'**
+  String get areApproachRoadsAvailable;
+
+  /// No description provided for @numberOfApproachRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Approach Roads'**
+  String get numberOfApproachRoads;
+
+  /// No description provided for @conditionOfApproachRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition of Approach Roads'**
+  String get conditionOfApproachRoads;
+
+  /// No description provided for @remarksIfAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Remarks (if any)'**
+  String get remarksIfAny;
+
+  /// No description provided for @internalLanes.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal Lanes'**
+  String get internalLanes;
+
+  /// No description provided for @availabilityConditionInternalLanes.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability and condition of internal lanes in village'**
+  String get availabilityConditionInternalLanes;
+
+  /// No description provided for @areInternalLanesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Are Internal Lanes available?'**
+  String get areInternalLanesAvailable;
+
+  /// No description provided for @numberOfInternalLanes.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Internal Lanes'**
+  String get numberOfInternalLanes;
+
+  /// No description provided for @conditionOfInternalLanes.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition of Internal Lanes'**
+  String get conditionOfInternalLanes;
+
+  /// No description provided for @schoolAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'School Availability'**
+  String get schoolAvailability;
+
+  /// No description provided for @availabilityOfDifferentTypesOfSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability of different types of schools'**
+  String get availabilityOfDifferentTypesOfSchools;
+
+  /// No description provided for @primarySchoolUpto5thStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary School (Upto 5th Standard)'**
+  String get primarySchoolUpto5thStandard;
+
+  /// No description provided for @juniorSchool6thTo8thStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Junior School (6th to 8th Standard)'**
+  String get juniorSchool6thTo8thStandard;
+
+  /// No description provided for @highSchool9thTo10thStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'High School (9th to 10th Standard)'**
+  String get highSchool9thTo10thStandard;
+
+  /// No description provided for @intermediateSchool102.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate School (10+2)'**
+  String get intermediateSchool102;
+
+  /// No description provided for @otherLikeAnganwadiShikshaGuaranteeSchemeEtc.
+  ///
+  /// In en, this message translates to:
+  /// **'Other (like Anganwadi, Shiksha Guarantee Scheme, etc.)'**
+  String get otherLikeAnganwadiShikshaGuaranteeSchemeEtc;
+
+  /// No description provided for @numberOfStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Students'**
+  String get numberOfStudents;
+
+  /// No description provided for @totalNumberOfStudentsInVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Total number of students in village'**
+  String get totalNumberOfStudentsInVillage;
+
+  /// No description provided for @boys.
+  ///
+  /// In en, this message translates to:
+  /// **'Boys'**
+  String get boys;
+
+  /// No description provided for @girls.
+  ///
+  /// In en, this message translates to:
+  /// **'Girls'**
+  String get girls;
+
+  /// No description provided for @otherInfrastructureFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Infrastructure Facilities'**
+  String get otherInfrastructureFacilities;
+
+  /// No description provided for @availabilityOfVariousInfrastructureFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability of various infrastructure facilities'**
+  String get availabilityOfVariousInfrastructureFacilities;
+
+  /// No description provided for @playground.
+  ///
+  /// In en, this message translates to:
+  /// **'Playground'**
+  String get playground;
+
+  /// No description provided for @panchayatBhavan.
+  ///
+  /// In en, this message translates to:
+  /// **'Panchayat Bhavan'**
+  String get panchayatBhavan;
+
+  /// No description provided for @shardaKendraPlaceOfWorship.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharda Kendra (Place of Worship)'**
+  String get shardaKendraPlaceOfWorship;
+
+  /// No description provided for @healthFacilityGeneralPractitioners.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Facility (General Practitioners)'**
+  String get healthFacilityGeneralPractitioners;
+
+  /// No description provided for @primaryHealthCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary Health Centre'**
+  String get primaryHealthCentre;
+
+  /// No description provided for @bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get bank;
+
+  /// No description provided for @infrastructureAvailabilityInVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Infrastructure Availability in Village'**
+  String get infrastructureAvailabilityInVillage;
+
+  /// No description provided for @availabilityOfInfrastructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability of Infrastructure'**
+  String get availabilityOfInfrastructure;
+
+  /// No description provided for @typeOfDrainageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of drainage system'**
+  String get typeOfDrainageSystem;
+
+  /// No description provided for @selectTheDrainageSystemAvailableInTheVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the drainage system available in the village'**
+  String get selectTheDrainageSystemAvailableInTheVillage;
+
+  /// No description provided for @drainageSystemType.
+  ///
+  /// In en, this message translates to:
+  /// **'Drainage system type'**
+  String get drainageSystemType;
+
+  /// No description provided for @remarksOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Remarks (optional)'**
+  String get remarksOptional;
+
+  /// No description provided for @wasteAndSanitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Waste and sanitation'**
+  String get wasteAndSanitation;
+
+  /// No description provided for @optionalDetailsAboutCollectionAndSegregation.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional details about collection and segregation'**
+  String get optionalDetailsAboutCollectionAndSegregation;
+
+  /// No description provided for @isWasteCollectedRegularly.
+  ///
+  /// In en, this message translates to:
+  /// **'Is waste collected regularly?'**
+  String get isWasteCollectedRegularly;
+
+  /// No description provided for @isWasteSegregated.
+  ///
+  /// In en, this message translates to:
+  /// **'Is waste segregated?'**
+  String get isWasteSegregated;
+
+  /// No description provided for @earthenDrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Earthen drain'**
+  String get earthenDrain;
+
+  /// No description provided for @masonryDrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Masonry drain'**
+  String get masonryDrain;
+
+  /// No description provided for @coveredDrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered drain'**
+  String get coveredDrain;
+
+  /// No description provided for @openChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open channel'**
+  String get openChannel;
+
+  /// No description provided for @noDrainageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'No drainage system'**
+  String get noDrainageSystem;
+
+  /// No description provided for @drainageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Drainage System'**
+  String get drainageSystem;
+
+  /// No description provided for @recordTheTypeOfDrainageSystemAndRelatedWasteHandling.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the type of drainage system and related waste handling.'**
+  String get recordTheTypeOfDrainageSystemAndRelatedWasteHandling;
+
+  /// No description provided for @availableIrrigationFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Irrigation Facilities'**
+  String get availableIrrigationFacilities;
+
+  /// No description provided for @selectYesOrNoForEachFacility.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Yes or No for each facility'**
+  String get selectYesOrNoForEachFacility;
+
+  /// No description provided for @river.
+  ///
+  /// In en, this message translates to:
+  /// **'River'**
+  String get river;
+
+  /// No description provided for @selectedFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Facilities'**
+  String get selectedFacilities;
+
+  /// No description provided for @step6.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 6'**
+  String get step6;
+
+  /// No description provided for @seedClubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Clubs'**
+  String get seedClubs;
+
+  /// No description provided for @locationCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Coordinates'**
+  String get locationCoordinates;
+
+  /// No description provided for @captureGpsCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture GPS Coordinates'**
+  String get captureGpsCoordinates;
 }
 
 class _AppLocalizationsDelegate

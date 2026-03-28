@@ -1,736 +1,919 @@
+// Village Survey Main Form Screen
+// Handles creation and editing of village survey sessions.
+// Data is saved locally and synced to Supabase.
+// This file contains form logic, location fetching, and session management.
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'population_form_screen.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:location/location.dart';
+import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart' as provider_package;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
+import '../../services/sync_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../data/india_states_districts.dart';
+import 'package:dri_survey/data/shine_villages.dart';
+import '../../form_template.dart';
+import '../../services/location_service.dart';
+import '../../providers/village_survey_provider.dart';
+import '../family_survey/widgets/side_navigation.dart';
+import 'infrastructure_screen.dart';
 
-class VillageFormScreen extends StatefulWidget {
+/// Main entry point for the village survey form.
+/// Handles user input, location, and session data.
+class VillageFormScreen extends ConsumerStatefulWidget {
+  const VillageFormScreen({super.key});
+
   @override
-  _VillageFormScreenState createState() => _VillageFormScreenState();
+  ConsumerState<VillageFormScreen> createState() => _VillageFormScreenState();
 }
 
-class _VillageFormScreenState extends State<VillageFormScreen> {
-  final _formKey = GlobalKey<FormState>();
-  
-  // Form fields
-  String _villageName = '';
-  String _villageCode = '';
-  String _gpsLink = '';
-  String _selectedState = '';
-  String _selectedDistrict = '';
-  String _block = '';
-  String _panchayat = '';
-  String _tehsil = '';
-  String _ldgCode = '';
-  
-  // State data for cascading dropdowns
-  final Map<String, List<String>> _stateDistrictData = {
-    'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Thane', 'Nashik'],
-    'Uttar Pradesh': ['Lucknow', 'Varanasi', 'Agra', 'Kanpur', 'Prayagraj'],
-    'Delhi': ['New Delhi', 'North Delhi', 'South Delhi', 'East Delhi', 'West Delhi'],
-    'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota', 'Ajmer'],
-    'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar'],
-    'Karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'],
-    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Trichy', 'Salem'],
-  };
+class _VillageFormScreenState extends ConsumerState<VillageFormScreen> {
+  // --- Form controllers for each field ---
+  final TextEditingController villageNameController = TextEditingController();
+  final TextEditingController villageCodeController = TextEditingController();
+  final TextEditingController blockController = TextEditingController();
+  final TextEditingController panchayatController = TextEditingController();
+  final TextEditingController tehsilController = TextEditingController();
+  final TextEditingController ldgCodeController = TextEditingController();
+  final TextEditingController shineCodeController = TextEditingController();
+  final TextEditingController praTeamController = TextEditingController();
 
-  List<String> _availableDistricts = [];
+  // --- Location Data ---
+  double? _latitude;
+  double? _longitude;
+  double? _accuracy;
+  String? _locationTimestamp;
+
+  // --- State and District Selection ---
+  String selectedState = '';
+  String selectedDistrict = '';
+  bool _isLoadingLocation = false;
+  bool _locationFetched = false;
+
+  // --- Map state for location picker ---
+  MapController _mapController = MapController();
+  LatLng _currentLocation = LatLng(28.6139, 77.2090); // Default to Delhi
+  Location _location = Location();
+  bool _locationLoaded = false;
+
+  // --- State/district options (loaded from static map) ---
+  Map<String, List<String>> stateDistrictData = {};
+  List<String> availableDistricts = [];
+  List<String> stateOptions = [];
 
   @override
   void initState() {
     super.initState();
-    _availableDistricts = [];
+    _loadStateDistrictData();
+
+    // On widget load, check if a session already exists and load it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForExistingSession();
+    });
+
+    // Initialize location services for GPS data.
+    _initializeLocation();
   }
 
-  void _onStateChanged(String? newValue) {
-    setState(() {
-      _selectedState = newValue ?? '';
-      _selectedDistrict = '';
-      
-      if (_selectedState.isNotEmpty) {
-        _availableDistricts = _stateDistrictData[_selectedState] ?? [];
-      } else {
-        _availableDistricts = [];
+  /// Checks if a village survey session already exists in the local database.
+  /// If found, loads the session data into the form controllers.
+  Future<void> _checkForExistingSession() async {
+    final databaseService = provider_package.Provider.of<DatabaseService>(context, listen: false);
+    final sessionId = databaseService.currentSessionId;
+    if (sessionId != null) {
+      try {
+        final db = await databaseService.database;
+        final List<Map<String, dynamic>> sessions = await db.query(
+          'village_survey_sessions',
+          where: 'session_id = ?',
+          whereArgs: [sessionId],
+        );
+        if (sessions.isNotEmpty) {
+          final session = sessions.first;
+          setState(() {
+            villageNameController.text = session['village_name'] ?? '';
+            villageCodeController.text = session['village_code'] ?? '';
+            blockController.text = session['block'] ?? '';
+            panchayatController.text = session['panchayat'] ?? '';
+            tehsilController.text = session['tehsil'] ?? '';
+            ldgCodeController.text = session['ldg_code'] ?? '';
+            shineCodeController.text = session['shine_code'] ?? '';
+            selectedState = session['state'] ?? '';
+            if (selectedState.isNotEmpty) {
+              availableDistricts = Set<String>.from(stateDistrictData[selectedState] ?? []).toList()..sort();
+              selectedDistrict = session['district'] ?? '';
+            }
+            _latitude = session['latitude'];
+            _longitude = session['longitude'];
+            if (_latitude != null && _longitude != null) {
+              _locationFetched = true;
+              _currentLocation = LatLng(_latitude!, _longitude!);
+            }
+          });
+        }
+      } catch (e) {
+        // Debug print left for troubleshooting session load issues.
+        debugPrint('Error loading existing session: $e');
       }
-    });
-  }
-
-  void _onDistrictChanged(String? newValue) {
-    setState(() {
-      _selectedDistrict = newValue ?? '';
-    });
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green),
-              SizedBox(width: 10),
-              Text('Village Data Saved'),
-            ],
-          ),
-          content: Text('Village information has been saved successfully. Continue to population data?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Edit'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PopulationFormScreen()),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Village data saved!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF800080)),
-              child: Text('Continue to Population'),
-            ),
-          ],
-        ),
-      );
     }
   }
 
-  void _resetForm() {
-    _formKey.currentState?.reset();
+  Future<void> _getCurrentLocation() async {
+    try {
+      bool serviceEnabled = await _location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await _location.requestService();
+        if (!serviceEnabled) return;
+      }
+      PermissionStatus permissionGranted = await _location.hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await _location.requestPermission();
+        if (permissionGranted != PermissionStatus.granted) return;
+      }
+      LocationData locationData = await _location.getLocation();
+      setState(() {
+        _currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+        _locationLoaded = true;
+      });
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _initializeLocation() async {
+    // Get current location for map display
+    await _getCurrentLocation();
+
+    // Automatically fetch and save location data without user interaction
+    try {
+      final locationData = await LocationService.getCompleteLocationData();
+
+      if (locationData != null && mounted) {
+        setState(() {
+          _latitude = locationData['latitude'];
+          _longitude = locationData['longitude'];
+          _accuracy = locationData['accuracy'];
+          _locationTimestamp = locationData['timestamp'];
+
+          // Auto-fill address fields
+          if (locationData['village']?.isNotEmpty == true) {
+            villageNameController.text = locationData['village'];
+          }
+          if (locationData['subLocality']?.isNotEmpty == true) {
+            panchayatController.text = locationData['subLocality'];
+          }
+          if (locationData['subAdministrativeArea']?.isNotEmpty == true) {
+            blockController.text = locationData['subAdministrativeArea'];
+            tehsilController.text = locationData['subAdministrativeArea'];
+          }
+          if (locationData['administrativeArea']?.isNotEmpty == true) {
+            selectedDistrict = locationData['administrativeArea'];
+          }
+
+          _locationFetched = true;
+        });
+      }
+    } catch (e) {
+      // Silently handle error - location will be fetched manually if needed
+    }
+  }
+
+  void _loadStateDistrictData() {
+    stateDistrictData = Map<String, List<String>>.from(indiaStatesDistricts);
+    stateOptions = stateDistrictData.keys.toList()..sort();
+    availableDistricts = [];
+  }
+
+  void _onStateChanged(String? value) {
     setState(() {
-      _villageName = '';
-      _villageCode = '';
-      _gpsLink = '';
-      _selectedState = '';
-      _selectedDistrict = '';
-      _block = '';
-      _panchayat = '';
-      _tehsil = '';
-      _ldgCode = '';
-      _availableDistricts = [];
+      selectedState = value ?? '';
+      selectedDistrict = '';
+      availableDistricts = Set<String>.from(stateDistrictData[selectedState] ?? []).toList()..sort();
     });
+  }
+
+  void _onDistrictChanged(String? value) {
+    setState(() {
+      selectedDistrict = value ?? '';
+    });
+  }
+
+  Future<void> _submitForm() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      // Get the village survey provider
+      final villageSurveyNotifier = ref.read(villageSurveyProvider.notifier);
+
+      // Create session data with form values
+      final sessionId = const Uuid().v4();
+      final formData = {
+        'session_id': sessionId,
+        'shine_code': shineCodeController.text,
+        'village_name': villageNameController.text.isEmpty ? 'Unknown Village' : villageNameController.text,
+        'village_code': villageCodeController.text,
+        'state': selectedState,
+        'district': selectedDistrict,
+        'block': blockController.text,
+        'panchayat': panchayatController.text,
+        'tehsil': tehsilController.text,
+        'ldg_code': ldgCodeController.text,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'location_accuracy': _accuracy,
+        'location_timestamp': _locationTimestamp,
+        'status': 'in_progress',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      // Use the provider to initialize the village survey (this handles surveyor_email)
+      await villageSurveyNotifier.initializeVillageSurvey(formData);
+
+      // Mark page 0 as completed and sync immediately
+      final currentSessionId = formData['session_id'] as String;
+      await provider_package.Provider.of<DatabaseService>(context, listen: false)
+          .markVillagePageCompleted(currentSessionId, 0);
+
+      // Sync immediately to Supabase (do not block UI). Fire-and-forget with timeout.
+      try {
+        unawaited(
+          provider_package.Provider.of<SyncService>(context, listen: false)
+              .syncVillagePageData(currentSessionId, 0, formData)
+              .timeout(const Duration(seconds: 6)),
+        );
+      } catch (e) {
+        debugPrint('❌ Failed to start sync for village survey session $currentSessionId: $e');
+      }
+
+      if (mounted) {
+        // Close loading dialog
+        Navigator.pop(context);
+
+        // Navigate to next screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => InfrastructureScreen()),
+        );
+      }
+    } catch (e) {
+      print('Error initializing village survey: $e');
+      if (mounted) {
+        // Close loading dialog
+        Navigator.pop(context);
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating village survey: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _saveFormData() async {
+    final databaseService = provider_package.Provider.of<DatabaseService>(context, listen: false);
+    final supabaseService = provider_package.Provider.of<SupabaseService>(context, listen: false);
+    final syncService = SyncService.instance;
+
+    // Get current authenticated user email
+    final currentUserEmail = supabaseService.currentUser?.email ?? 'unknown';
+
+    // Check if we have an existing session
+    final existingSessionId = databaseService.currentSessionId;
+    if (existingSessionId == null) {
+      // No existing session, create a new one
+      final sessionId = const Uuid().v4();
+
+      final sessionData = {
+        'session_id': sessionId,
+        'village_name': villageNameController.text.isEmpty ? 'Unknown Village' : villageNameController.text,
+        'village_code': villageCodeController.text,
+        'state': selectedState,
+        'district': selectedDistrict,
+        'block': blockController.text,
+        'panchayat': panchayatController.text,
+        'tehsil': tehsilController.text,
+        'ldg_code': ldgCodeController.text,
+        'shine_code': shineCodeController.text,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'location_accuracy': _accuracy,
+        'location_timestamp': _locationTimestamp,
+        'surveyor_email': currentUserEmail,  // ✅ ADD SURVEYOR EMAIL
+        'status': 'in_progress',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      try {
+        await databaseService.createNewVillageSurveySession(sessionData);
+        await databaseService.markVillagePageCompleted(sessionId, 0);
+        unawaited(syncService.syncVillagePageData(sessionId, 0, sessionData));
+      } catch (e) {
+        print('Error saving form data: $e');
+      }
+    } else {
+      // Update existing session
+      final sessionData = {
+        'village_name': villageNameController.text.isEmpty ? 'Unknown Village' : villageNameController.text,
+        'village_code': villageCodeController.text,
+        'state': selectedState,
+        'district': selectedDistrict,
+        'block': blockController.text,
+        'panchayat': panchayatController.text,
+        'tehsil': tehsilController.text,
+        'ldg_code': ldgCodeController.text,
+        'shine_code': shineCodeController.text,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'location_accuracy': _accuracy,
+        'location_timestamp': _locationTimestamp,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      try {
+        final db = await databaseService.database;
+        await db.update(
+          'village_survey_sessions',
+          sessionData,
+          where: 'session_id = ?',
+          whereArgs: [existingSessionId],
+        );
+        await databaseService.markVillagePageCompleted(existingSessionId, 0);
+        unawaited(syncService.syncVillagePageData(existingSessionId, 0, sessionData));
+      } catch (e) {
+        print('Error updating form data: $e');
+      }
+    }
+  }
+
+  // SIMPLE BACK FUNCTION
+  void _goBack() async {
+    final shouldPop = await _onWillPop();
+    if (shouldPop && mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  Future<bool> _onWillPop() async {
+    // Check if any form data has been entered
+    final hasData = villageNameController.text.isNotEmpty ||
+        villageCodeController.text.isNotEmpty ||
+        blockController.text.isNotEmpty ||
+        panchayatController.text.isNotEmpty ||
+        tehsilController.text.isNotEmpty ||
+        ldgCodeController.text.isNotEmpty ||
+        shineCodeController.text.isNotEmpty ||
+        selectedState.isNotEmpty ||
+        selectedDistrict.isNotEmpty ||
+        _latitude != null ||
+        _longitude != null;
+
+    // If no data entered, allow exit without prompt
+    if (!hasData) {
+      return true;
+    }
+
+    // Show confirmation dialog
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit Village Survey'),
+        content: const Text(
+          'You have unsaved progress. Would you like to save your current village details before leaving?'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false), // Don't exit
+            child: const Text('Continue Survey'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Save current form data
+              await _saveFormData();
+              Navigator.of(context).pop(true); // Exit after saving
+            },
+            child: const Text('Save & Exit'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true), // Exit without saving
+            child: const Text('Exit Without Saving'),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
+  void _resetForm() {
+    setState(() {
+      villageNameController.clear();
+      villageCodeController.clear();
+      blockController.clear();
+      panchayatController.clear();
+      tehsilController.clear();
+      ldgCodeController.clear();
+      shineCodeController.clear();
+      praTeamController.clear();
+      selectedState = '';
+      selectedDistrict = '';
+      availableDistricts = [];
+      _locationFetched = false;
+      _latitude = null;
+      _longitude = null;
+    });
+
+    // Also create a fresh in-memory current session so reset acts like "start new"
+    try {
+      DatabaseService().currentSessionId = const Uuid().v4();
+    } catch (_) {}
+  }
+
+  void _onShineVillageSelected(ShineVillage shineVillage) {
+    setState(() {
+      shineCodeController.text = shineVillage.shineCode;
+      villageNameController.text = shineVillage.revenueVillage;
+      panchayatController.text = shineVillage.panchayat;
+      blockController.text = shineVillage.block;
+      praTeamController.text = shineVillage.praTeam;
+      
+      // Handle State
+      String tempState = shineVillage.state;
+      // Handle potential abbreviation mappings or mismatches if needed
+      if (tempState == "M.P.") tempState = "Madhya Pradesh";
+      if (tempState == "U.P.") tempState = "Uttar Pradesh";
+
+      if (stateDistrictData.containsKey(tempState)) {
+        selectedState = tempState;
+        // Ensure unique districts and sort
+        availableDistricts = Set<String>.from(stateDistrictData[selectedState] ?? []).toList()..sort();
+      } else {
+        // If state not found, reset
+        selectedState = '';
+        availableDistricts = [];
+      }
+
+      // Handle District
+      if (availableDistricts.contains(shineVillage.district)) {
+        selectedDistrict = shineVillage.district;
+      } else {
+        // Try to handle known data issues or close matches
+        // For now, reset if not found in list to prevent errors
+        selectedDistrict = '';
+        
+        // Debug/Fallback: if district is same as state (data error), we clear it.
+        // If it was supposed to be Chitrakoot (for U.P.), we can't guess easily without a map.
+      }
+      
+      ldgCodeController.text = shineVillage.rvLgdCode;
+    });
+  }
+
+  Future<void> _fetchLocation() async {
+    if (_locationFetched) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    setState(() {
+      _isLoadingLocation = true;
+    });
+
+    try {
+      final locationData = await LocationService.getCompleteLocationData();
+
+      if (locationData != null && mounted) {
+        setState(() {
+          _latitude = locationData['latitude'];
+          _longitude = locationData['longitude'];
+          _accuracy = locationData['accuracy'];
+          _locationTimestamp = locationData['timestamp'];
+
+          // Auto-fill address fields
+          if (locationData['village']?.isNotEmpty == true) {
+            villageNameController.text = locationData['village'];
+          }
+          if (locationData['subLocality']?.isNotEmpty == true) {
+            panchayatController.text = locationData['subLocality'];
+          }
+          if (locationData['subAdministrativeArea']?.isNotEmpty == true) {
+            blockController.text = locationData['subAdministrativeArea'];
+            tehsilController.text = locationData['subAdministrativeArea'];
+          }
+          if (locationData['administrativeArea']?.isNotEmpty == true) {
+            selectedDistrict = locationData['administrativeArea'];
+          }
+
+          _locationFetched = true;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.locationDetectedSuccessfully),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.failedToGetLocation(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildVillageContent() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        // 1. Location with Map (First Question)
+        QuestionCard(
+          question: l10n.locationCoordinates,
+          description: l10n.captureGpsCoordinates,
+          child: Column(
+            children: [
+              // OpenStreetMap Widget (16:9 aspect ratio)
+              Container(
+                height: MediaQuery.of(context).size.width * 9 / 16, // 16:9 aspect ratio
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: _currentLocation,
+                          initialZoom: 15.0,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.example.edu_survey_new',
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              if (_locationLoaded)
+                                Marker(
+                                  point: _currentLocation,
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    child: Stack(
+                                      children: [
+                                        Icon(Icons.location_on, color: Colors.red, size: 40),
+                                        Positioned(
+                                          top: 5,
+                                          left: 13,
+                                          child: Container(
+                                            width: 14,
+                                            height: 14,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.red, width: 2),
+                                            ),
+                                            child: Icon(Icons.my_location, color: Colors.red, size: 8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      // Floating Action Button for centering map to current location
+                      Positioned(
+                        bottom: 16,
+                        right: 16,
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            if (_locationLoaded) {
+                              _mapController.move(_currentLocation, 15.0);
+                            } else {
+                              _getCurrentLocation().then((_) {
+                                if (_locationLoaded) {
+                                  _mapController.move(_currentLocation, 15.0);
+                                }
+                              });
+                            }
+                          },
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.blue,
+                          elevation: 4,
+                          mini: true,
+                          child: const Icon(Icons.my_location),
+                          tooltip: 'Center to my location',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Location Success Indicator
+              if (_locationFetched)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 16, top: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green[700]),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Location detected successfully',
+                        style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Location Coordinates Display
+              if (_locationFetched && _latitude != null && _longitude != null)
+                Container(
+                  margin: EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          Text('Latitude', style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                          SizedBox(height: 4),
+                          Text(_latitude!.toStringAsFixed(6), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
+                      Container(height: 30, width: 1, color: Colors.grey[300]),
+                      Column(
+                        children: [
+                          Text('Longitude', style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                          SizedBox(height: 4),
+                          Text(_longitude!.toStringAsFixed(6), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Capture Location Button
+              ElevatedButton.icon(
+                onPressed: _isLoadingLocation ? null : _fetchLocation,
+                icon: _isLoadingLocation
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : Icon(Icons.my_location),
+                label: Text(_locationFetched ? 'Update Location' : 'Capture Location'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _locationFetched ? Colors.green : Color(0xFF800080),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  minimumSize: Size(double.infinity, 48),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // 2. SHINE Code Autocomplete (Second Question)
+        QuestionCard(
+          question: 'SHINE Code',
+          description: 'Select SHINE Code to auto-fill village details',
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Autocomplete<ShineVillage>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text == '') {
+                    return const Iterable<ShineVillage>.empty();
+                  }
+                  return ShineVillagesData.villages.where((ShineVillage option) {
+                    return option.shineCode.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                  });
+                },
+                displayStringForOption: (ShineVillage option) => option.shineCode,
+                onSelected: (ShineVillage selection) {
+                  _onShineVillageSelected(selection);
+                },
+                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                   // Keep the local controller in sync with our state controller if needed
+                   // But here we use textEditingController for the autocomplete logic
+                   // We should update our state controller when this changes or just use this one if we want.
+                   // To allow manual entry without selection, we can listen to changes.
+                   return TextFormField(
+                     controller: textEditingController,
+                     focusNode: focusNode,
+                     decoration: InputDecoration(
+                       labelText: 'Enter/Search SHINE Code',
+                       hintText: 'e.g. SHINE_001',
+                       prefixIcon: Icon(Icons.qr_code, color: Color(0xFF800080)),
+                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                       filled: true,
+                       fillColor: Colors.white,
+                     ),
+                   );
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4.0,
+                      child: SizedBox(
+                        width: constraints.maxWidth,
+                        height: 200.0,
+                        child: ListView.builder(
+                          padding: EdgeInsets.all(8.0),
+                          itemCount: options.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final ShineVillage option = options.elementAt(index);
+                            return GestureDetector(
+                              onTap: () {
+                                onSelected(option);
+                              },
+                              child: ListTile(
+                                title: Text(option.shineCode, style: TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text('${option.revenueVillage}, ${option.district}'), 
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+          ),
+        ),
+
+        // 3. Village Name
+        QuestionCard(
+          question: l10n.nameOfVillage,
+          description: l10n.officialNameOfVillage,
+          child: TextInput(
+            label: l10n.enterVillageName,
+            controller: villageNameController,
+            prefixIcon: Icons.home,
+          ),
+        ),
+
+        // 4. Village Code (RV LGD Code)
+        QuestionCard(
+          question: 'LGD Code', // Renaming "Village Code" to "LGD Code" based on user context "RV LGD CODE"
+          description: 'Revenue Village LGD Code',
+          child: TextInput(
+            label: 'Enter LGD Code',
+            controller: ldgCodeController,
+            prefixIcon: Icons.numbers,
+          ),
+        ),
+
+        // 5. Panchayat
+        QuestionCard(
+          question: 'Panchayat',
+          description: 'Name of the Panchayat',
+          child: TextInput(
+            label: 'Enter Panchayat',
+            controller: panchayatController,
+            prefixIcon: Icons.account_balance,
+          ),
+        ),
+
+        // 6. Block
+        QuestionCard(
+          question: 'Block',
+          description: 'Name of the Block',
+          child: TextInput(
+            label: 'Enter Block',
+            controller: blockController,
+            prefixIcon: Icons.holiday_village,
+          ),
+        ),
+
+        // 7. Tehsil
+        QuestionCard(
+          question: 'Tehsil',
+          description: 'Name of the Tehsil',
+          child: TextInput(
+            label: 'Enter Tehsil',
+            controller: tehsilController,
+            prefixIcon: Icons.location_city,
+          ),
+        ),
+
+        // 8. District
+        QuestionCard(
+          question: 'District',
+          description: 'Select District',
+          child: DropdownInput(
+            label: 'Select District',
+            value: selectedDistrict,
+            items: availableDistricts,
+            onChanged: _onDistrictChanged,
+            prefixIcon: Icons.map,
+            enabled: selectedState.isNotEmpty,
+          ),
+        ),
+
+        // 9. State
+        QuestionCard(
+          question: 'State',
+          description: 'Select State',
+          child: DropdownInput(
+            label: 'Select State',
+            value: selectedState,
+            items: stateOptions,
+            onChanged: _onStateChanged,
+            prefixIcon: Icons.public,
+          ),
+        ),
+
+        // 10. PRA Team
+        QuestionCard(
+          question: 'PRA Team',
+          description: 'Names of PRA Team Members',
+          child: TextInput(
+            label: 'Enter PRA Team Members',
+            controller: praTeamController,
+            prefixIcon: Icons.group,
+          ),
+        ),
+
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Government of India Header
-            Container(
-              width: double.infinity,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Government of India Text
-                    Text(
-                      'Government of India',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF003366),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    // Digital India Text
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Digital India',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Power To Empower',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF138808),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Main Form Container
-            Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/indian_background.jpg'),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.white.withOpacity(0.1),
-                    BlendMode.dstATop,
-                  ),
-                ),
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Form Header Card
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200, width: 1),
-                      ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.location_city, color: Color(0xFF800080), size: 32),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Village Information Form',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Step 1: Please fill all the details about the village',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Container(
-                              height: 4,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF800080),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                    SizedBox(height: 25),
-                    
-                    // Village Name
-                    _buildQuestionWithBackground(
-                      question: '🏡 Name of village *',
-                      child: _buildTextField(
-                        label: 'Enter village name',
-                        icon: Icons.location_city,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter village name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _villageName = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Village Code Number
-                    _buildQuestionWithBackground(
-                      question: '🔢 Village Code Number *',
-                      child: _buildNumberField(
-                        label: 'Enter village code',
-                        icon: Icons.numbers,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter village code';
-                          }
-                          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                            return 'Please enter numbers only';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _villageCode = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // GPS Link
-                    _buildQuestionWithBackground(
-                      question: '📍 GPS Location Link',
-                      child: _buildTextField(
-                        label: 'https://maps.google.com/?q=latitude,longitude',
-                        icon: Icons.map,
-                        keyboardType: TextInputType.url,
-                        validator: (value) {
-                          if (value != null && value.isNotEmpty) {
-                            if (!value.startsWith('http')) {
-                              return 'Please enter a valid URL';
-                            }
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _gpsLink = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // State Dropdown
-                    _buildQuestionWithBackground(
-                      question: '🏳️ State *',
-                      child: _buildDropdownField(
-                        label: 'Select State',
-                        icon: Icons.flag,
-                        value: _selectedState,
-                        items: _stateDistrictData.keys.toList(),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select state';
-                          }
-                          return null;
-                        },
-                        onChanged: _onStateChanged,
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // District Dropdown
-                    _buildQuestionWithBackground(
-                      question: '🏙️ District *',
-                      child: _buildDropdownField(
-                        label: _selectedState.isEmpty ? 'Select state first' : 'Select District',
-                        icon: Icons.location_city,
-                        value: _selectedDistrict,
-                        items: _availableDistricts,
-                        enabled: _selectedState.isNotEmpty,
-                        validator: (value) {
-                          if (_selectedState.isNotEmpty && (value == null || value.isEmpty)) {
-                            return 'Please select district';
-                          }
-                          return null;
-                        },
-                        onChanged: _onDistrictChanged,
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Block
-                    _buildQuestionWithBackground(
-                      question: '📦 Block *',
-                      child: _buildTextField(
-                        label: 'Enter block name',
-                        icon: Icons.grid_view,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter block name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _block = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Panchayat
-                    _buildQuestionWithBackground(
-                      question: '🏛️ Panchayat *',
-                      child: _buildTextField(
-                        label: 'Enter panchayat name',
-                        icon: Icons.account_balance,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter panchayat name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _panchayat = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Tehsil
-                    _buildQuestionWithBackground(
-                      question: '🗺️ Tehsil *',
-                      child: _buildTextField(
-                        label: 'Enter tehsil name',
-                        icon: Icons.terrain,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter tehsil name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _tehsil = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // LDG Code
-                    _buildQuestionWithBackground(
-                      question: '🏢 LDG Code *',
-                      child: _buildNumberField(
-                        label: 'Enter LDG code',
-                        icon: Icons.code,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter LDG code';
-                          }
-                          if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                            return 'Please enter numbers only';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _ldgCode = value ?? '',
-                      ),
-                    ),
-                    
-                    SizedBox(height: 30),
-                    
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _resetForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade700,
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.refresh),
-                            label: Text('Reset Form'),
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _submitForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF800080),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.arrow_forward, size: 24),
-                            label: Text(
-                              'Save & Continue',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Form Preview
-                    if (_villageName.isNotEmpty || _selectedState.isNotEmpty)
-                      _buildFormPreview(),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    final l10n = AppLocalizations.of(context)!;
+    return FormTemplateScreen(
+      title: l10n.villageInformation,
+      stepNumber: l10n.step1,
+      instructions: l10n.fillVillageDetails,
+      contentWidget: _buildVillageContent(),
+      onSubmit: _submitForm,
+      onBack: _goBack,
+      onReset: _resetForm,
+      nextScreenRoute: '/infrastructure',
+      nextScreenName: 'Infrastructure',
+      icon: Icons.info,
+      drawer: const SideNavigation(),
     );
   }
 
-  // Widget for question with background image
-  Widget _buildQuestionWithBackground({
-    required String question,
-    required Widget child,
-    String? description,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      margin: EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(30, 128, 0, 128),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Color(0xFF800080).withOpacity(0.3),
-          width: 1,
-        ),
-        image: DecorationImage(
-          image: AssetImage('assets/images/form_background.png'),
-          fit: BoxFit.cover,
-          opacity: 0.05,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Question Text with Purple Padding
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Color(0xFF800080),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                if (description != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15),
-          // Input Field
-          child,
-        ],
-      ),
-    );
-  }
-
-  // Form Preview Card
-  Widget _buildFormPreview() {
-    return Card(
-      elevation: 2,
-      color: Colors.purple.shade50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.purple.shade200, width: 1),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.preview, color: Color(0xFF800080)),
-                SizedBox(width: 8),
-                Text(
-                  '📋 Form Preview:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF800080),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            if (_villageName.isNotEmpty)
-              _buildPreviewItem('Village:', _villageName),
-            if (_selectedState.isNotEmpty)
-              _buildPreviewItem('State:', _selectedState),
-            if (_selectedDistrict.isNotEmpty)
-              _buildPreviewItem('District:', _selectedDistrict),
-            if (_block.isNotEmpty)
-              _buildPreviewItem('Block:', _block),
-            if (_panchayat.isNotEmpty)
-              _buildPreviewItem('Panchayat:', _panchayat),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPreviewItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF800080),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Text Field Widget
-  Widget _buildTextField({
-    required String label,
-    required IconData icon,
-    required FormFieldValidator<String?> validator,
-    required FormFieldSetter<String?> onSaved,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade600),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Color(0xFF800080), width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        prefixIcon: Icon(icon, color: Color(0xFF800080)),
-      ),
-      keyboardType: keyboardType,
-      validator: validator,
-      onSaved: onSaved,
-      style: TextStyle(color: Colors.grey.shade800),
-    );
-  }
-
-  // Number Field Widget
-  Widget _buildNumberField({
-    required String label,
-    required IconData icon,
-    required FormFieldValidator<String?> validator,
-    required FormFieldSetter<String?> onSaved,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade600),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Color(0xFF800080), width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        prefixIcon: Icon(icon, color: Color(0xFF800080)),
-      ),
-      keyboardType: TextInputType.number,
-      validator: validator,
-      onSaved: onSaved,
-      style: TextStyle(color: Colors.grey.shade800),
-    );
-  }
-
-  // Dropdown Field Widget
-  Widget _buildDropdownField({
-    required String label,
-    required IconData icon,
-    required String value,
-    required List<String> items,
-    required FormFieldValidator<String?> validator,
-    required Function(String?) onChanged,
-    bool enabled = true,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: enabled ? Colors.grey.shade300 : Colors.grey.shade200,
-        ),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value.isEmpty ? null : value,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(
-            color: enabled ? Colors.grey.shade600 : Colors.grey.shade400,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(
-              item,
-              style: TextStyle(
-                color: enabled ? Colors.grey.shade800 : Colors.grey.shade400,
-              ),
-            ),
-          );
-        }).toList(),
-        onChanged: enabled ? onChanged : null,
-        validator: validator,
-        isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down, color: Color(0xFF800080)),
-        style: TextStyle(color: Colors.grey.shade800),
-        dropdownColor: Colors.white,
-      ),
-    );
+  @override
+  void dispose() {
+    villageNameController.dispose();
+    villageCodeController.dispose();
+    blockController.dispose();
+    panchayatController.dispose();
+    tehsilController.dispose();
+    ldgCodeController.dispose();
+    shineCodeController.dispose();
+    praTeamController.dispose();
+    super.dispose();
   }
 }

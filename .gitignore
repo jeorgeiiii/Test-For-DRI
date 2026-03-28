@@ -1,3 +1,28 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -7,7 +32,8 @@
 .packages
 .pub-cache/
 .pub/
-build/
+/build/
+/coverage/
 
 # Symbolication related
 app.*.symbols
@@ -19,69 +45,84 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/outputs/
 
-# Android specific
-android/app/src/main/res/values/google-services.json
-android/app/google-services.json
-android/app/debug.keystore
+# iOS/macOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*.xcworkspace
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Icon??
+**/ios/**/Icon???
+**/ios/**/Icon????
+**/ios/**/Icon?????
+**/ios/**/Icon??????
+**/ios/**/Icon?????? ?Icon????
+**/ios/**/modules.order
+**/ios/**/Pods/
+**/ios/**/*.jlink/
+**/ios/**/.dart_tool/
+**/ios/**/.flutter-plugins
+**/ios/**/.flutter-plugins-dependencies
+**/ios/**/.packages
+**/ios/**/.pub-cache/
+**/ios/**/.pub/
+**/ios/**/build/
+**/ios/**/flutter_*.framework
+**/ios/**/Flutter.framework
+**/ios/**/Flutter.podspec
+**/ios/**/Generated.xcconfig
+**/ios/**/ephemeral/
+**/ios/**/Flutter/Flutter.framework
+**/ios/**/Flutter/Flutter.podspec
 
-# iOS specific
-ios/Flutter/.last_build_id
+# Environment variables
+.env
+.env.*
+!.env.example
+assets/.env
+assets/.env.*
 
-# Web specific
-web/favicon.png
+# Secrets and credentials
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+client_secret_*.json
+*.p12
+*.cer
 
 # IDE
 .vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
+*.swp
+*.swo
+*~
 
 # OS
-.DS_Store
 Thumbs.db
 
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.atom/
-.buildlog/
-.history
-.svn/
-
-# Coverage
-coverage/
-
-# Environment
-.env
-
-# Flutter
-.flutter/
-
-# Android
-android/app/build/
-android/gradle/
-android/gradlew
-android/gradlew.bat
+# Local files
+local.properties
 android/local.properties
 
-# iOS
-ios/Pods/
-ios/Flutter/Flutter.framework
-ios/Flutter/Flutter.podspec
+# Generated files
+*.g.dart
+*.pb.dart
+*.pbjson.dart
+*.config.dart
 
-# Linux
-linux/flutter/ephemeral/
+# Temporary files
+*.tmp
 
-# macOS
-macos/Flutter/ephemeral/
-
-# Windows
-windows/flutter/ephemeral/
-
-# Miscellaneous
+# System files
 .metadata
-# pubspec.lock  # Uncomment if using pub workspaces; otherwise, commit it
+pubspec.lockDashboard/.env
+build/flutter_assets/assets/.env

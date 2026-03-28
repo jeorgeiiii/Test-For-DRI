@@ -1,43 +1,114 @@
-// Temporarily disabled native location services for minimal APK build
-// import 'package:geolocator/geolocator.dart';
-// import 'package:geocoding/geocoding.dart';
+import 'package:location/location.dart';
 
 class LocationService {
+  static final Location _location = Location();
+
   static Future<bool> checkLocationPermission() async {
-    // Mock implementation - location services disabled
-    print('Location services temporarily disabled for minimal APK build');
-    return false;
+    bool serviceEnabled = await _location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _location.requestService();
+      if (!serviceEnabled) return false;
+    }
+
+    PermissionStatus permissionGranted = await _location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return false;
+    }
+
+    return true;
   }
 
   static Future<Map<String, dynamic>?> getCurrentPosition() async {
-    // Mock implementation - return null to indicate location unavailable
-    print('Location services temporarily disabled for minimal APK build');
-    return null;
+    try {
+      if (!await checkLocationPermission()) return null;
+
+      LocationData locationData = await _location.getLocation();
+      return {
+        'latitude': locationData.latitude,
+        'longitude': locationData.longitude,
+        // Provide both the legacy key `accuracy` and the schema-named
+        // `location_accuracy` (numeric) so callers and DB mapping work.
+        'accuracy': locationData.accuracy,
+        'location_accuracy': locationData.accuracy,
+        // Provide both legacy `timestamp` and schema `location_timestamp`.
+        'timestamp': DateTime.now().toIso8601String(),
+        'location_timestamp': DateTime.now().toIso8601String(),
+      };
+    } catch (e) {
+      return null;
+    }
   }
 
   static Future<Map<String, String>?> getAddressFromCoordinates(
       double latitude, double longitude) async {
-    // Mock implementation - return null to indicate geocoding unavailable
-    print('Geocoding services temporarily disabled for minimal APK build');
-    return null;
+    // For now, return basic location info
+    // TODO: Implement reverse geocoding when needed
+    return {
+      'latitude': latitude.toString(),
+      'longitude': longitude.toString(),
+      'coordinates': '$latitude, $longitude',
+    };
   }
 
   static Future<Map<String, dynamic>?> getCompleteLocationData() async {
-    // Mock implementation - return sample data for testing
-    print('Location services temporarily disabled for minimal APK build');
-    print('Returning mock location data for testing purposes');
+    try {
+      // Check location permission first
+      if (!await checkLocationPermission()) {
+        print('Location permission denied or location services disabled');
+        return null;
+      }
 
-    // Return mock data to allow the app to function
-    return {
-      'latitude': 28.6139,  // Delhi coordinates as example
-      'longitude': 77.2090,
-      'accuracy': 10.0,
-      'timestamp': DateTime.now().toIso8601String(),
-      'village': 'Sample Village',
-      'district': 'Sample District',
-      'state': 'Sample State',
-      'pincode': '110001',
-      'country': 'India',
-    };
+      // Set location settings for better accuracy
+      await _location.changeSettings(
+        accuracy: LocationAccuracy.high,
+        interval: 5000, // Update every 5 seconds
+        distanceFilter: 10, // Update when moved 10 meters
+      );
+
+      // Get location with timeout
+      LocationData locationData;
+      try {
+        locationData = await _location.getLocation().timeout(
+          const Duration(seconds: 30),
+          onTimeout: () {
+            print('Location request timed out');
+            throw Exception('Location request timed out');
+          },
+        );
+      } catch (e) {
+        print('Error getting location: $e');
+        return null;
+      }
+
+
+      if (locationData.latitude == null || locationData.longitude == null) {
+        print('Location coordinates are null: lat=${locationData.latitude}, lng=${locationData.longitude}');
+        return null;
+      }
+
+      final nowIso = DateTime.now().toIso8601String();
+      final result = {
+        'latitude': locationData.latitude!,
+        'longitude': locationData.longitude!,
+        'accuracy': locationData.accuracy ?? 0.0,
+        'location_accuracy': locationData.accuracy ?? 0.0,
+        'timestamp': nowIso,
+        'location_timestamp': nowIso,
+        'village': '', // Will be filled by reverse geocoding if implemented
+        'subLocality': '', // Will be filled by reverse geocoding if implemented
+        'subAdministrativeArea': '', // Will be filled by reverse geocoding if implemented
+        'administrativeArea': '', // Will be filled by reverse geocoding if implemented
+        'postalCode': '', // Will be filled by reverse geocoding if implemented
+        'country': 'India', // Default for India
+      };
+
+      print('Successfully captured location: ${result['latitude']}, ${result['longitude']}');
+      return result;
+
+    } catch (e) {
+      print('Critical error in getCompleteLocationData: $e');
+      return null;
+    }
   }
 }

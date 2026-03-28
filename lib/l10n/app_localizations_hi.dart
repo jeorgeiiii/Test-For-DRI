@@ -9,7 +9,7 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String get appTitle => 'परिवार सर्वेक्षण';
+  String get appTitle => 'डीआरआई पीआरए ऐप';
 
   @override
   String get startFamilyQuiz => 'परिवार प्रश्नोत्तरी शुरू करें';
@@ -87,7 +87,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get enterOtp => 'OTP दर्ज करें';
 
   @override
-  String get resendOtp => 'OTP पुनः भेजें';
+  String get resendOtp => 'OTP फिर से भेजें';
 
   @override
   String get welcome => 'स्वागत है';
@@ -129,10 +129,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get landHolding => 'भूमि धारण';
 
   @override
-  String get irrigatedArea => 'सिंचित क्षेत्र (एकड़)';
+  String get irrigatedArea => 'सिंचित क्षेत्र (एकर)';
 
   @override
-  String get cultivableArea => 'कृषि योग्य क्षेत्र (एकड़)';
+  String get cultivableArea => 'कृषि योग्य क्षेत्र (एकर)';
 
   @override
   String get orchardPlants => 'बागवानी पौधे';
@@ -159,19 +159,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get cropName => 'फसल का नाम';
 
   @override
-  String get areaAcres => 'क्षेत्र (एकड़)';
+  String get areaAcres => 'क्षेत्र (एकर)';
 
   @override
-  String get productivity => 'उत्पादकता (क्विंटल/एकड़)';
+  String get productivity => 'उत्पादकता (क्विंटल/एकर)';
 
   @override
   String get totalProduction => 'कुल उत्पादन';
 
   @override
-  String get quantityConsumed => 'उपभोग मात्रा';
+  String get quantityConsumed => 'उपभोग की गई मात्रा';
 
   @override
-  String get quantitySold => 'बिक्री मात्रा';
+  String get quantitySold => 'बेची गई मात्रा';
 
   @override
   String get fertilizerUsage => 'उर्वरक उपयोग';
@@ -255,7 +255,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get pickupTruck => 'पिकअप ट्रक';
 
   @override
-  String get bullockCart => 'बैलगाड़ी';
+  String get bullockCart => 'बैलगाड़ी';
 
   @override
   String get drinkingWaterSources => 'पेयजल स्रोत';
@@ -291,7 +291,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get traditional => 'परंपरागत';
 
   @override
-  String get jhadPhook => 'झाड़ फूंक';
+  String get jhadPhook => 'झाड़ फूक';
 
   @override
   String get disputes => 'विवाद';
@@ -324,7 +324,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get hut => 'झोपड़ी';
 
   @override
-  String get houseFacilities => 'घरेलू सुविधाएँ';
+  String get houseFacilities => 'घर की सुविधाएँ';
 
   @override
   String get toilet => 'शौचालय';
@@ -333,19 +333,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get drainage => 'नाली';
 
   @override
-  String get soakPit => 'सोक पिट';
+  String get soakPit => 'सोख पिट';
 
   @override
   String get cattleShed => 'पशुशाला';
 
   @override
-  String get compostPit => 'कंपोस्ट पिट';
+  String get compostPit => 'खाद पिट';
 
   @override
-  String get nadep => 'NADEP';
+  String get nadep => 'नाडेप';
 
   @override
-  String get lpgGas => 'LPG गैस';
+  String get lpgGas => 'एलपीजी गैस';
 
   @override
   String get biogas => 'बायोगैस';
@@ -355,6 +355,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get electricConnection => 'बिजली कनेक्शन';
+
+  @override
+  String get electricalConnection => 'बिजली कनेक्शन';
 
   @override
   String get nutritionalGarden => 'पोषण किचन गार्डन';
@@ -384,7 +387,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get detailsCorrect => 'विवरण सही है';
 
   @override
-  String get eligible => 'योग्य';
+  String get eligible => 'पात्र';
 
   @override
   String get registered => 'पंजीकृत';
@@ -396,13 +399,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ayushman => 'आयुष्मान';
 
   @override
-  String get familyId => 'परिवार ID';
+  String get familyId => 'परिवार आईडी';
 
   @override
   String get rationCard => 'राशन कार्ड';
 
   @override
-  String get samagraId => 'समग्र ID';
+  String get samagraId => 'समग्र आईडी';
 
   @override
   String get tribalCard => 'जनजातीय कार्ड';
@@ -483,7 +486,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get asNeeded => 'आवश्यकतानुसार';
 
   @override
-  String get jobDescription => 'नौकरी विवरण';
+  String get jobDescription => 'नौकरी का विवरण';
 
   @override
   String get training => 'प्रशिक्षण';
@@ -501,7 +504,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get selfHelpGroups => 'स्वयं सहायता समूह';
 
   @override
-  String get shgName => 'SHG नाम';
+  String get shgName => 'एसएचजी नाम';
 
   @override
   String get purpose => 'उद्देश्य';
@@ -510,22 +513,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String get agency => 'एजेंसी';
 
   @override
-  String get fpoMembership => 'FPO सदस्यता';
+  String get fpoMembership => 'एफपीओ सदस्यता';
 
   @override
-  String get fpoName => 'FPO नाम';
+  String get fpoName => 'एफपीओ नाम';
 
   @override
   String get beneficiaryPrograms => 'लाभार्थी कार्यक्रम';
 
   @override
-  String get vbGram => 'VB GRAM';
+  String get vbGram => 'वीबी ग्राम';
 
   @override
-  String get pmKisanNidhi => 'PM किसान निधि';
+  String get pmKisanNidhi => 'पीएम किसान निधि';
 
   @override
-  String get pmKisanSamman => 'PM किसान सम्मान';
+  String get pmKisanSamman => 'पीएम किसान सम्मान';
 
   @override
   String get kisanCreditCard => 'किसान क्रेडिट कार्ड';
@@ -540,7 +543,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get received => 'प्राप्त';
 
   @override
-  String get daysWorked => 'काम के दिन';
+  String get daysWorked => 'काम किए दिन';
 
   @override
   String get bankAccounts => 'बैंक खाते';
@@ -573,10 +576,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get honeyCollectionAreas => 'शहद संग्रहण क्षेत्र';
 
   @override
-  String get ntfpIdentification => 'NTFP पहचान';
+  String get ntfpIdentification => 'एनटीएफपी पहचान';
 
   @override
-  String get stakeholderShgs => 'हितधारक SHG';
+  String get stakeholderShgs => 'हितधारक एसएचजी';
 
   @override
   String get skillsIdentification => 'कौशल पहचान';
@@ -618,24 +621,25 @@ class AppLocalizationsHi extends AppLocalizations {
   String get retry => 'पुनः प्रयास करें';
 
   @override
-  String get gotIt => 'Got It';
+  String get gotIt => 'समझ गया';
 
   @override
-  String get help => 'Help';
+  String get help => 'सहायता';
 
   @override
   String stepOfTotal(Object current, Object total) {
-    return 'Step $current of $total';
+    return 'कुल $total में चरण $current';
   }
 
   @override
-  String get exportAllSurveysSuccess => 'All surveys exported successfully';
+  String get exportAllSurveysSuccess =>
+      'सभी सर्वेक्षण सफलतापूर्वक निर्यात किए गए';
 
   @override
-  String get exportSummarySuccess => 'Summary exported successfully';
+  String get exportSummarySuccess => 'सारांश सफलतापूर्वक निर्यात किया गया';
 
   @override
-  String get exportBackupSuccess => 'Backup exported successfully';
+  String get exportBackupSuccess => 'बैकअप सफलतापूर्वक निर्यात किया गया';
 
   @override
   String exportFailed(Object error) {
@@ -643,249 +647,250 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get exportData => 'Export Data';
+  String get exportData => 'डेटा निर्यात करें';
 
   @override
-  String get exportDataDescription => 'Export survey data';
+  String get exportDataDescription => 'सर्वेक्षण डेटा निर्यात करें';
 
   @override
-  String get exportAllSurveys => 'Export All Surveys';
+  String get exportAllSurveys => 'सभी सर्वेक्षण निर्यात करें';
 
   @override
-  String get exportAllSurveysDesc => 'Export all survey data';
+  String get exportAllSurveysDesc => 'सभी सर्वेक्षण डेटा निर्यात करें';
 
   @override
-  String get exportSummaryReport => 'Export Summary Report';
+  String get exportSummaryReport => 'सारांश रिपोर्ट निर्यात करें';
 
   @override
-  String get exportSummaryDesc => 'Export summary report';
+  String get exportSummaryDesc => 'सारांश रिपोर्ट निर्यात करें';
 
   @override
-  String get exportJSONBackup => 'Export JSON Backup';
+  String get exportJSONBackup => 'JSON बैकअप निर्यात करें';
 
   @override
-  String get exportBackupDesc => 'Export JSON backup';
+  String get exportBackupDesc => 'JSON बैकअप निर्यात करें';
 
   @override
-  String get exportInfo => 'Export Info';
+  String get exportInfo => 'निर्यात जानकारी';
 
   @override
-  String get exportInfoDesc => 'Information about export';
+  String get exportInfoDesc => 'निर्यात के बारे में जानकारी';
 
   @override
-  String get provideLivestockDetails => 'Provide Livestock Details';
+  String get provideLivestockDetails => 'पशुधन विवरण प्रदान करें';
 
   @override
-  String get animal => 'Animal';
+  String get animal => 'पशु';
 
   @override
-  String get noOfAnimals => 'No. of Animals';
+  String get noOfAnimals => 'पशुओं की संख्या';
 
   @override
-  String get addAnotherAnimal => 'Add Another Animal';
+  String get addAnotherAnimal => 'एक और पशु जोड़ें';
 
   @override
   String totalAnimalTypes(Object count) {
-    return 'Total Animal Types: $count';
+    return 'कुल पशु प्रकार: $count';
   }
 
   @override
   String animalNumber(Object number) {
-    return 'Animal $number';
+    return 'पशु $number';
   }
 
   @override
-  String get removeAnimal => 'Remove Animal';
+  String get removeAnimal => 'पशु हटाएँ';
 
   @override
-  String get cropProductivityAndArea => 'Crop Productivity and Area';
+  String get cropProductivityAndArea => 'फसल उत्पादकता और क्षेत्र';
 
   @override
-  String get provideCropProductionDetails => 'Provide Crop Production Details';
+  String get provideCropProductionDetails => 'फसल उत्पादन विवरण प्रदान करें';
 
   @override
-  String get crop => 'Crop';
+  String get crop => 'फसल';
 
   @override
-  String get productivityQtlAcre => 'Productivity (Qtl/Acre)';
+  String get productivityQtlAcre => 'उत्पादकता (क्विंटल/एकर)';
 
   @override
-  String get totalProd => 'Total Prod';
+  String get totalProd => 'कुल उत्पादन';
 
   @override
-  String get consumed => 'Consumed';
+  String get consumed => 'उपभोग किया गया';
 
   @override
-  String get soldQtlRs => 'Sold (Qtl/Rs)';
+  String get soldQtlRs => 'बेचा गया (क्विंटल/रुपये)';
 
   @override
-  String get addAnotherCrop => 'Add Another Crop';
+  String get addAnotherCrop => 'एक और फसल जोड़ें';
 
   @override
   String totalCrops(Object count) {
-    return 'Total Crops: $count';
+    return 'कुल फसलें: $count';
   }
 
   @override
   String cropNumber(Object number) {
-    return 'Crop $number';
+    return 'फसल $number';
   }
 
   @override
-  String get removeCrop => 'Remove Crop';
+  String get removeCrop => 'फसल हटाएँ';
 
   @override
-  String get area => 'Area';
+  String get area => 'क्षेत्र';
 
   @override
-  String get prod => 'Prod';
+  String get prod => 'उत्पादन';
 
   @override
-  String get total => 'Total';
+  String get total => 'कुल';
 
   @override
-  String get soldQtlAndRs => 'Sold (Qtl & Rs)';
+  String get soldQtlAndRs => 'बेचा गया (क्विंटल और रुपये)';
 
   @override
-  String get healthIssuesAndDiseases => 'Health Issues and Diseases';
+  String get healthIssuesAndDiseases => 'स्वास्थ्य समस्याएँ और बीमारियाँ';
 
   @override
-  String get describeMajorHealthIssues => 'Describe Major Health Issues';
+  String get describeMajorHealthIssues =>
+      'प्रमुख स्वास्थ्य समस्याओं का वर्णन करें';
 
   @override
-  String get describeHealthIssues => 'Describe Health Issues';
+  String get describeHealthIssues => 'स्वास्थ्य समस्याओं का वर्णन करें';
 
   @override
-  String get describeHealthIssuesHint => 'Describe health issues';
+  String get describeHealthIssuesHint => 'स्वास्थ्य समस्याओं का वर्णन करें';
 
   @override
-  String get leaveBlankIfNoIssues => 'Leave blank if no issues';
+  String get leaveBlankIfNoIssues => 'यदि कोई समस्या नहीं है तो खाली छोड़ दें';
 
   @override
-  String get healthInfoConfidential => 'Health info is confidential';
+  String get healthInfoConfidential => 'स्वास्थ्य जानकारी गोपनीय है';
 
   @override
-  String get commonHealthIssues => 'Common Health Issues';
+  String get commonHealthIssues => 'सामान्य स्वास्थ्य समस्याएँ';
 
   @override
-  String get optionalSection => 'Optional Section';
+  String get optionalSection => 'वैकल्पिक अनुभाग';
 
   @override
-  String get healthInfoSensitive => 'Health info is sensitive';
+  String get healthInfoSensitive => 'स्वास्थ्य जानकारी संवेदनशील है';
 
   @override
-  String get legalDisputesCourtCases => 'Legal Disputes/Court Cases';
+  String get legalDisputesCourtCases => 'कानूनी विवाद/कोर्ट मामले';
 
   @override
-  String get describeLegalDisputes => 'Describe Legal Disputes';
+  String get describeLegalDisputes => 'कानूनी विवादों का वर्णन करें';
 
   @override
-  String get describeLegalDisputesLabel => 'Describe Legal Disputes';
+  String get describeLegalDisputesLabel => 'कानूनी विवादों का वर्णन करें';
 
   @override
-  String get describeLegalDisputesHint => 'Describe legal disputes';
+  String get describeLegalDisputesHint => 'कानूनी विवादों का वर्णन करें';
 
   @override
-  String get leaveBlankIfNoDisputes => 'Leave blank if no disputes';
+  String get leaveBlankIfNoDisputes => 'यदि कोई विवाद नहीं है तो खाली छोड़ दें';
 
   @override
-  String get legalInfoConfidential => 'Legal info is confidential';
+  String get legalInfoConfidential => 'कानूनी जानकारी गोपनीय है';
 
   @override
-  String get commonDisputes => 'Common Disputes';
+  String get commonDisputes => 'सामान्य विवाद';
 
   @override
-  String get optionalDisputesSection => 'Optional Disputes Section';
+  String get optionalDisputesSection => 'वैकल्पिक विवाद अनुभाग';
 
   @override
-  String get selectEntertainmentFacilities => 'Select Entertainment Facilities';
+  String get selectEntertainmentFacilities => 'मनोरंजन सुविधाएँ चुनें';
 
   @override
-  String get smartMobilePhone => 'Smart Mobile Phone';
+  String get smartMobilePhone => 'स्मार्ट मोबाइल फोन';
 
   @override
-  String get androidIosSmartphones => 'Android/iOS Smartphones';
+  String get androidIosSmartphones => 'एंड्रॉइड/iOS स्मार्टफोन';
 
   @override
-  String get numberOfSmartphones => 'Number of Smartphones';
+  String get numberOfSmartphones => 'स्मार्टफोन की संख्या';
 
   @override
-  String get enterCount => 'Enter Count';
+  String get enterCount => 'गिनती दर्ज करें';
 
   @override
-  String get analogMobilePhone => 'Analog Mobile Phone';
+  String get analogMobilePhone => 'एनालॉग मोबाइल फोन';
 
   @override
-  String get basicMobilePhones => 'Basic Mobile Phones';
+  String get basicMobilePhones => 'बेसिक मोबाइल फोन';
 
   @override
-  String get numberOfAnalogPhones => 'Number of Analog Phones';
+  String get numberOfAnalogPhones => 'एनालॉग फोन की संख्या';
 
   @override
-  String get tvEntertainmentNews => 'TV Entertainment/News';
+  String get tvEntertainmentNews => 'टीवी मनोरंजन/समाचार';
 
   @override
-  String get radioNewsMusic => 'Radio News/Music';
+  String get radioNewsMusic => 'रेडियो समाचार/संगीत';
 
   @override
-  String get gamesGamingDevices => 'Games/Gaming Devices';
+  String get gamesGamingDevices => 'खेल/गेमिंग डिवाइस';
 
   @override
-  String get videoGamesBoardGames => 'Video Games/Board Games';
+  String get videoGamesBoardGames => 'वीडियो गेम/बोर्ड गेम';
 
   @override
-  String get otherEntertainment => 'Other Entertainment';
+  String get otherEntertainment => 'अन्य मनोरंजन';
 
   @override
-  String get newspaperInternetEtc => 'Newspaper/Internet etc';
+  String get newspaperInternetEtc => 'अखबार/इंटरनेट आदि';
 
   @override
-  String get specifyOtherEntertainment => 'Specify Other Entertainment';
+  String get specifyOtherEntertainment => 'अन्य मनोरंजन निर्दिष्ट करें';
 
   @override
-  String get entertainmentExamples => 'Entertainment Examples';
+  String get entertainmentExamples => 'मनोरंजन उदाहरण';
 
   @override
-  String get entertainmentInfo => 'Entertainment Info';
+  String get entertainmentInfo => 'मनोरंजन जानकारी';
 
   @override
-  String get selectEntertainmentFacility => 'Select Entertainment Facility';
+  String get selectEntertainmentFacility => 'मनोरंजन सुविधा चुनें';
 
   @override
-  String get selectAgriculturalEquipment => 'Select Agricultural Equipment';
+  String get selectAgriculturalEquipment => 'कृषि उपकरण चुनें';
 
   @override
-  String get otherEquipmentSpecify => 'Other Equipment (Specify)';
+  String get otherEquipmentSpecify => 'अन्य उपकरण (निर्दिष्ट करें)';
 
   @override
   String get provideDetailsForEachFamilyMember =>
-      'Provide Details for Each Family Member';
+      'प्रत्येक परिवार सदस्य के लिए विवरण प्रदान करें';
 
   @override
   String totalFamilyMembers(Object count) {
-    return 'Total Family Members: $count';
+    return 'कुल परिवार सदस्य: $count';
   }
 
   @override
-  String get required => 'Required';
+  String get required => 'आवश्यक';
 
   @override
-  String get removeMember => 'Remove Member';
+  String get removeMember => 'सदस्य हटाएँ';
 
   @override
-  String get pleaseEnterMemberName => 'Please enter member name';
+  String get pleaseEnterMemberName => 'कृपया सदस्य का नाम दर्ज करें';
 
   @override
-  String get pleaseEnterAge => 'Please enter age';
+  String get pleaseEnterAge => 'कृपया आयु दर्ज करें';
 
   @override
-  String get pleaseEnterValidAge => 'Please enter valid age';
+  String get pleaseEnterValidAge => 'कृपया मान्य आयु दर्ज करें';
 
   @override
-  String get pleaseSelectGender => 'Please select gender';
+  String get pleaseSelectGender => 'कृपया लिंग चुनें';
 
   @override
-  String get selectFertilizerType => 'Select Fertilizer Type';
+  String get selectFertilizerType => 'उर्वरक प्रकार चुनें';
 
   @override
   String errorSubmittingSurvey(Object error) {
@@ -893,49 +898,49 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get thankYouParticipating => 'Thank you for participating';
+  String get thankYouParticipating => 'भाग लेने के लिए धन्यवाद';
 
   @override
-  String get surveySummary => 'Survey Summary';
+  String get surveySummary => 'सर्वेक्षण सारांश';
 
   @override
-  String get familyInformation => 'Family Information';
+  String get familyInformation => 'परिवार जानकारी';
 
   @override
-  String get economicDetails => 'Economic Details';
+  String get economicDetails => 'आर्थिक विवरण';
 
   @override
-  String get agriculturalData => 'Agricultural Data';
+  String get agriculturalData => 'कृषि डेटा';
 
   @override
-  String get healthEducation => 'Health & Education';
+  String get healthEducation => 'स्वास्थ्य और शिक्षा';
 
   @override
-  String get migrationTraining => 'Migration & Training';
+  String get migrationTraining => 'प्रवास और प्रशिक्षण';
 
   @override
-  String get importantNotes => 'Important Notes';
+  String get importantNotes => 'महत्वपूर्ण नोट्स';
 
   @override
-  String get dataStoredSecurely => 'Data stored securely';
+  String get dataStoredSecurely => 'डेटा सुरक्षित रूप से संग्रहीत है';
 
   @override
-  String get personalInfoConfidential => 'Personal info is confidential';
+  String get personalInfoConfidential => 'व्यक्तिगत जानकारी गोपनीय है';
 
   @override
-  String get surveyResponsesHelp => 'Survey responses help';
+  String get surveyResponsesHelp => 'सर्वेक्षण प्रतिक्रियाएँ मदद करती हैं';
 
   @override
-  String get contactLocalAuthorities => 'Contact local authorities';
+  String get contactLocalAuthorities => 'स्थानीय अधिकारियों से संपर्क करें';
 
   @override
-  String get submittingSurvey => 'Submitting Survey';
+  String get submittingSurvey => 'सर्वेक्षण सबमिट किया जा रहा है';
 
   @override
-  String get submitSurvey => 'Submit Survey';
+  String get submitSurvey => 'सर्वेक्षण सबमिट करें';
 
   @override
-  String get thankYouContribution => 'Thank you for your contribution';
+  String get thankYouContribution => 'आपके योगदान के लिए धन्यवाद';
 
   @override
   String failedToGetLocation(Object error) {
@@ -943,114 +948,439 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get locationInformation => 'Location Information';
+  String get locationInformation => 'स्थान जानकारी';
 
   @override
-  String get getCurrentLocation => 'Get Current Location';
+  String get getCurrentLocation => 'वर्तमान स्थान प्राप्त करें';
 
   @override
-  String get locationDetectedSuccessfully => 'Location detected successfully';
+  String get locationDetectedSuccessfully => 'स्थान सफलतापूर्वक पता चला';
 
   @override
-  String get selectIrrigationFacilities => 'Select Irrigation Facilities';
+  String get selectIrrigationFacilities => 'सिंचाई सुविधाएँ चुनें';
 
   @override
-  String get canalIrrigation => 'Canal Irrigation';
+  String get canalIrrigation => 'नहर सिंचाई';
 
   @override
-  String get governmentCanalWaterSupply => 'Government Canal Water Supply';
+  String get governmentCanalWaterSupply => 'सरकारी नहर जल आपूर्ति';
 
   @override
-  String get tubeWellBoreWell => 'Tube Well/Bore Well';
+  String get tubeWellBoreWell => 'ट्यूबवेल/बोरवेल';
 
   @override
-  String get undergroundWaterExtraction => 'Underground Water Extraction';
+  String get undergroundWaterExtraction => 'भूमिगत जल निकासी';
 
   @override
-  String get pondsLakes => 'Ponds/Lakes';
+  String get pondsLakes => 'तालाब/झील';
 
   @override
-  String get naturalWaterStorageBodies => 'Natural Water Storage Bodies';
+  String get naturalWaterStorageBodies => 'प्राकृतिक जल भंडारण निकाय';
 
   @override
-  String get otherIrrigationFacilities => 'Other Irrigation Facilities';
+  String get otherIrrigationFacilities => 'अन्य सिंचाई सुविधाएँ';
 
   @override
-  String get dripSprinklerEtc => 'Drip/Sprinkler etc';
+  String get dripSprinklerEtc => 'ड्रिप/स्प्रिंकलर आदि';
 
   @override
-  String get selectIrrigationMethodsInfo => 'Select Irrigation Methods Info';
+  String get selectIrrigationMethodsInfo => 'सिंचाई विधियाँ जानकारी चुनें';
 
   @override
-  String get pleaseSelectIrrigationFacility =>
-      'Please select irrigation facility';
+  String get pleaseSelectIrrigationFacility => 'कृपया सिंचाई सुविधा चुनें';
 
   @override
-  String get landHoldingInformation => 'Land Holding Information';
+  String get landHoldingInformation => 'भूमि धारण जानकारी';
 
   @override
-  String get totalIrrigatedArea => 'Total Irrigated Area';
+  String get totalIrrigatedArea => 'कुल सिंचित क्षेत्र';
 
   @override
-  String get enterAreaInAcres => 'Enter Area in Acres';
+  String get enterAreaInAcres => 'क्षेत्र एकर में दर्ज करें';
 
   @override
-  String get pleaseEnterIrrigatedArea => 'Please enter irrigated area';
+  String get pleaseEnterIrrigatedArea => 'कृपया सिंचित क्षेत्र दर्ज करें';
 
   @override
-  String get pleaseEnterValidArea => 'Please enter valid area';
+  String get pleaseEnterValidArea => 'कृपया मान्य क्षेत्र दर्ज करें';
 
   @override
-  String get totalCultivableArea => 'Total Cultivable Area';
+  String get totalCultivableArea => 'कुल कृषि योग्य क्षेत्र';
 
   @override
-  String get pleaseEnterCultivableArea => 'Please enter cultivable area';
+  String get pleaseEnterCultivableArea => 'कृपया कृषि योग्य क्षेत्र दर्ज करें';
 
   @override
-  String get orchardPlantsIfAny => 'Orchard Plants (If Any)';
+  String get orchardPlantsIfAny => 'बागवानी पौधे (यदि कोई)';
 
   @override
-  String get orchardPlantsExample => 'Orchard Plants Example';
+  String get orchardPlantsExample => 'बागवानी पौधे उदाहरण';
 
   @override
-  String get landMeasurementInfo => 'Land Measurement Info';
+  String get landMeasurementInfo => 'भूमि माप जानकारी';
 
   @override
-  String get selectDrinkingWaterSources => 'Select Drinking Water Sources';
+  String get selectDrinkingWaterSources => 'पेयजल स्रोत चुनें';
 
   @override
-  String get manualWaterPumps => 'Manual Water Pumps';
+  String get manualWaterPumps => 'मैनुअल वाटर पंप';
 
   @override
-  String get distanceFromHomeMeters => 'Distance from Home (Meters)';
+  String get distanceFromHomeMeters => 'घर से दूरी (मीटर)';
 
   @override
-  String get enterDistance => 'Enter Distance';
+  String get enterDistance => 'दूरी दर्ज करें';
 
   @override
-  String get meters => 'Meters';
+  String get meters => 'मीटर';
 
   @override
-  String get openWellOrBoreWell => 'Open Well or Bore Well';
+  String get openWellOrBoreWell => 'खुला कुआँ या बोरवेल';
 
   @override
-  String get poweredWaterExtraction => 'Powered Water Extraction';
+  String get poweredWaterExtraction => 'संचालित जल निकासी';
 
   @override
-  String get nalJaalPipedWater => 'Nal Jaal/Piped Water';
+  String get nalJaalPipedWater => 'नल जल/पाइप्ड वाटर';
 
   @override
-  String get governmentPipedWaterSupply => 'Government Piped Water Supply';
+  String get governmentPipedWaterSupply => 'सरकारी पाइप्ड वाटर सप्लाई';
 
   @override
-  String get otherSources => 'Other Sources';
+  String get otherSources => 'अन्य स्रोत';
 
   @override
-  String get riverPondTankerEtc => 'River/Pond/Tanker etc';
+  String get riverPondTankerEtc => 'नदी/तालाब/टैंकर आदि';
 
   @override
-  String get cleanWaterAccessInfo => 'Clean Water Access Info';
+  String get cleanWaterAccessInfo => 'स्वच्छ जल पहुंच जानकारी';
 
   @override
-  String get selectDrinkingWaterSource => 'Select Drinking Water Source';
+  String get selectDrinkingWaterSource => 'पेयजल स्रोत चुनें';
+
+  @override
+  String get familySurvey => 'परिवार सर्वेक्षण';
+
+  @override
+  String get deendayalResearchInstitute => 'दीनदयाल रिसर्च इंस्टीट्यूट';
+
+  @override
+  String get helpAndSupport => 'सहायता और समर्थन';
+
+  @override
+  String get about => 'हमारे बारे में';
+
+  @override
+  String get version => 'संस्करण 1.0.0';
+
+  @override
+  String get surveyUser => 'सर्वेक्षण उपयोगकर्ता';
+
+  @override
+  String get phoneNumberDisplay => 'फोन: +91 2525252525';
+
+  @override
+  String get profileManagementMessage =>
+      'प्रोफ़ाइल प्रबंधन सुविधाएँ यहाँ कार्यान्वित की जाएँगी।';
+
+  @override
+  String get languageChangedToEnglish => 'भाषा अंग्रेजी में बदल दी गई';
+
+  @override
+  String get languageChangedToHindi => 'भाषा हिंदी में बदल दी गई';
+
+  @override
+  String get apply => 'लागू करें';
+
+  @override
+  String get fontSize => 'फॉंट आकार';
+
+  @override
+  String get resetToDefault => 'डिफ़ॉल्ट पर रीसेट करें';
+
+  @override
+  String get notifications => 'सूचनाएँ';
+
+  @override
+  String get darkMode => 'डार्क मोड';
+
+  @override
+  String get dataManagement => 'डेटा प्रबंधन';
+
+  @override
+  String get userGuide => 'उपयोगकर्ता गाइड';
+
+  @override
+  String get contactSupport => 'संपर्क सहायता';
+
+  @override
+  String get reportIssue => 'मुद्दा रिपोर्ट करें';
+
+  @override
+  String get close => 'बंद करें';
+
+  @override
+  String get familySurveyApp => 'परिवार सर्वेक्षण ऐप';
+
+  @override
+  String get appDescription =>
+      'ग्रामीण विकास और सरकारी योजनाओं के लिए व्यापक परिवार सर्वेक्षण अनुप्रयोग।';
+
+  @override
+  String get developedBy => 'दीनदयाल रिसर्च इंस्टीट्यूट द्वारा विकसित';
+
+  @override
+  String get logoutConfirm => 'लॉग आउट';
+
+  @override
+  String get logoutMessage =>
+      'क्या आप वाकई लॉग आउट करना चाहते हैं? आपका वर्तमान सर्वेक्षण प्रगति स्थानीय रूप से सहेजी जाएगी।';
+
+  @override
+  String get villageInformation => 'गाँव की जानकारी';
+
+  @override
+  String get step1 => 'चरण 1';
+
+  @override
+  String get fillVillageDetails => 'कृपया गाँव के बारे में सभी विवरण भरें';
+
+  @override
+  String get nameOfVillage => 'गाँव का नाम *';
+
+  @override
+  String get officialNameOfVillage => 'गाँव का आधिकारिक नाम';
+
+  @override
+  String get enterVillageName => 'गाँव का नाम दर्ज करें';
+
+  @override
+  String get educationalFacilities => 'शिक्षा सुविधाएँ';
+
+  @override
+  String get step7 => 'चरण 7';
+
+  @override
+  String get otherEducationalFacilities => 'अन्य शिक्षा सुविधाएँ और प्रकार';
+
+  @override
+  String get numberOfAnganwadi => 'क) अंगनवाड़ी की संख्या';
+
+  @override
+  String get anganwadiCenters => 'गाँव में अंगनवाड़ी केंद्रों की संख्या';
+
+  @override
+  String get enterNumberOfAnganwadi => 'अंगनवाड़ी की संख्या दर्ज करें';
+
+  @override
+  String get numberOfShikshaGuarantee =>
+      'ख) शिक्षा गारंटी लाभार्थियों की संख्या';
+
+  @override
+  String get shikshaGuaranteeBeneficiaries =>
+      'शिक्षा गारंटी योजना के तहत लाभार्थियों की संख्या';
+
+  @override
+  String get enterNumberOfBeneficiaries => 'लाभार्थियों की संख्या दर्ज करें';
+
+  @override
+  String get otherEducationalFacilitiesTitle => 'अन्य शिक्षा सुविधाएँ';
+
+  @override
+  String get otherEducationalFacilitiesDesc => 'गाँव में अन्य शिक्षा सुविधाएँ';
+
+  @override
+  String get facilityName =>
+      'सुविधा का नाम (जैसे, कोचिंग सेंटर, पुस्तकालय, आदि)';
+
+  @override
+  String get numberOfSuchFacilities => 'ऐसी सुविधाओं की संख्या';
+
+  @override
+  String get infrastructureInformation => 'बुनियादी ढाँचा जानकारी';
+
+  @override
+  String get step5 => 'चरण 5';
+
+  @override
+  String get availabilityApproachRoadsInternalLanes =>
+      'दृष्टिकोण सड़कों और आंतरिक गलियों की उपलब्धता';
+
+  @override
+  String get approachRoads => 'दृष्टिकोण सड़कें';
+
+  @override
+  String get availabilityConditionApproachRoads =>
+      'गाँव तक दृष्टिकोण सड़कों की उपलब्धता और स्थिति';
+
+  @override
+  String get areApproachRoadsAvailable => 'क्या दृष्टिकोण सड़कें उपलब्ध हैं?';
+
+  @override
+  String get numberOfApproachRoads => 'दृष्टिकोण सड़कों की संख्या';
+
+  @override
+  String get conditionOfApproachRoads => 'दृष्टिकोण सड़कों की स्थिति';
+
+  @override
+  String get remarksIfAny => 'टिप्पणियाँ (यदि कोई)';
+
+  @override
+  String get internalLanes => 'आंतरिक गलियाँ';
+
+  @override
+  String get availabilityConditionInternalLanes =>
+      'गाँव में आंतरिक गलियों की उपलब्धता और स्थिति';
+
+  @override
+  String get areInternalLanesAvailable => 'क्या आंतरिक गलियाँ उपलब्ध हैं?';
+
+  @override
+  String get numberOfInternalLanes => 'आंतरिक गलियों की संख्या';
+
+  @override
+  String get conditionOfInternalLanes => 'आंतरिक गलियों की स्थिति';
+
+  @override
+  String get schoolAvailability => 'स्कूल उपलब्धता';
+
+  @override
+  String get availabilityOfDifferentTypesOfSchools =>
+      'विभिन्न प्रकार के स्कूलों की उपलब्धता';
+
+  @override
+  String get primarySchoolUpto5thStandard => 'प्राथमिक स्कूल (5वीं कक्षा तक)';
+
+  @override
+  String get juniorSchool6thTo8thStandard =>
+      'जूनियर स्कूल (6वीं से 8वीं कक्षा)';
+
+  @override
+  String get highSchool9thTo10thStandard => 'हाई स्कूल (9वीं से 10वीं कक्षा)';
+
+  @override
+  String get intermediateSchool102 => 'इंटरमीडिएट स्कूल (10+2)';
+
+  @override
+  String get otherLikeAnganwadiShikshaGuaranteeSchemeEtc =>
+      'अन्य (अंगनवाड़ी, शिक्षा गारंटी योजना आदि जैसे)';
+
+  @override
+  String get numberOfStudents => 'छात्रों की संख्या';
+
+  @override
+  String get totalNumberOfStudentsInVillage => 'गाँव में छात्रों की कुल संख्या';
+
+  @override
+  String get boys => 'लड़के';
+
+  @override
+  String get girls => 'लड़कियाँ';
+
+  @override
+  String get otherInfrastructureFacilities => 'अन्य बुनियादी ढाँचा सुविधाएँ';
+
+  @override
+  String get availabilityOfVariousInfrastructureFacilities =>
+      'विभिन्न बुनियादी ढाँचा सुविधाओं की उपलब्धता';
+
+  @override
+  String get playground => 'खेल का मैदान';
+
+  @override
+  String get panchayatBhavan => 'पंचायत भवन';
+
+  @override
+  String get shardaKendraPlaceOfWorship => 'शारदा केंद्र (पूजा स्थान)';
+
+  @override
+  String get healthFacilityGeneralPractitioners =>
+      'स्वास्थ्य सुविधा (सामान्य चिकित्सक)';
+
+  @override
+  String get primaryHealthCentre => 'प्राथमिक स्वास्थ्य केंद्र';
+
+  @override
+  String get bank => 'बैंक';
+
+  @override
+  String get infrastructureAvailabilityInVillage =>
+      'गाँव में बुनियादी ढाँचा उपलब्धता';
+
+  @override
+  String get availabilityOfInfrastructure => 'बुनियादी ढाँचा की उपलब्धता';
+
+  @override
+  String get typeOfDrainageSystem => 'नाली प्रणाली का प्रकार';
+
+  @override
+  String get selectTheDrainageSystemAvailableInTheVillage =>
+      'गाँव में उपलब्ध नाली प्रणाली चुनें';
+
+  @override
+  String get drainageSystemType => 'नाली प्रणाली प्रकार';
+
+  @override
+  String get remarksOptional => 'टिप्पणियाँ (वैकल्पिक)';
+
+  @override
+  String get wasteAndSanitation => 'कचरा और स्वच्छता';
+
+  @override
+  String get optionalDetailsAboutCollectionAndSegregation =>
+      'संग्रहण और पृथक्करण के बारे में वैकल्पिक विवरण';
+
+  @override
+  String get isWasteCollectedRegularly =>
+      'क्या कचरा नियमित रूप से एकत्र किया जाता है?';
+
+  @override
+  String get isWasteSegregated => 'क्या कचरा पृथक किया जाता है?';
+
+  @override
+  String get earthenDrain => 'मिट्टी की नाली';
+
+  @override
+  String get masonryDrain => 'पत्थर की नाली';
+
+  @override
+  String get coveredDrain => 'ढकी हुई नाली';
+
+  @override
+  String get openChannel => 'खुली नाली';
+
+  @override
+  String get noDrainageSystem => 'कोई नाली प्रणाली नहीं';
+
+  @override
+  String get drainageSystem => 'नाली प्रणाली';
+
+  @override
+  String get recordTheTypeOfDrainageSystemAndRelatedWasteHandling =>
+      'नाली प्रणाली का प्रकार और संबंधित कचरा प्रबंधन रिकॉर्ड करें।';
+
+  @override
+  String get availableIrrigationFacilities => 'उपलब्ध सिंचाई सुविधाएँ';
+
+  @override
+  String get selectYesOrNoForEachFacility =>
+      'प्रत्येक सुविधा के लिए हाँ या नहीं चुनें';
+
+  @override
+  String get river => 'नदी';
+
+  @override
+  String get selectedFacilities => 'चयनित सुविधाएँ';
+
+  @override
+  String get step6 => 'चरण 6';
+
+  @override
+  String get seedClubs => 'बीज क्लब';
+
+  @override
+  String get locationCoordinates => 'स्थान निर्देशांक';
+
+  @override
+  String get captureGpsCoordinates => 'GPS निर्देशांक कैप्चर करें';
 }

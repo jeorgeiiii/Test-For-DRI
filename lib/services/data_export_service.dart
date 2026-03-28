@@ -1,168 +1,205 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:csv/csv.dart';
-// Temporarily disabled for minimal APK build
-// import 'package:path_provider/path_provider.dart';
-// import 'package:share_plus/share_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:universal_html/html.dart' as html;
+import 'dart:typed_data';
+import 'package:archive/archive.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:excel/excel.dart';
 
-// Temporarily disabled for minimal APK build
-// import '../database/database_helper.dart';
+import '../database/database_helper.dart';
+import '../services/database_service.dart';
+import '../services/excel_service.dart';
+import '../services/xlsx_export_service.dart';
 
+/// Service for exporting survey data to Excel format
+/// Saves directly to device storage
 class DataExportService {
+  static final DataExportService _instance = DataExportService._internal();
+  static DatabaseService get _db => DatabaseService();
+
+  factory DataExportService() => _instance;
+
   DataExportService._internal();
 
-  // Export all surveys to CSV
-  static Future<void> exportAllSurveysToCSV() async {
+  /// Export all surveys to Excel file and save to storage
+  Future<void> exportAllSurveysToExcel() async {
     try {
-      // Mock implementation - database disabled for minimal APK
-      print('Database functionality disabled in minimal APK build');
-      print('Export feature temporarily unavailable');
-
-      // Create sample CSV data for demonstration
-      List<List<String>> csvData = [];
-
-      // Add header row
-      csvData.add([
-        'Survey ID',
-        'Village Name',
-        'Panchayat',
-        'Block',
-        'Tehsil',
-        'District',
-        'Postal Address',
-        'Pin Code',
-        'Survey Date',
-        'Created At',
-        'Synced'
-      ]);
-
-      // Add sample survey data
-      csvData.add([
-        '1',
-        'Sample Village',
-        'Sample Panchayat',
-        'Sample Block',
-        'Sample Tehsil',
-        'Sample District',
-        'Sample Address',
-        '110001',
-        DateTime.now().toString(),
-        DateTime.now().toString(),
-        'No'
-      ]);
-
-      // Convert to CSV string
-      String csv = const ListToCsvConverter().convert(csvData);
-
-      // Save and share file
-      await _saveAndShareFile(csv, 'sample_surveys.csv');
-
+      await ExcelService().exportAllSurveysToExcel();
     } catch (e) {
       throw Exception('Failed to export surveys: $e');
     }
   }
 
-  // Export complete survey data with all details
-  static Future<void> exportCompleteSurveyData(int surveyId) async {
-    print('Database functionality disabled in minimal APK build');
-    print('Complete survey export temporarily unavailable');
-    // Mock implementation - just export sample data
-    await exportAllSurveysToCSV();
-  }
-
-  // Generate survey summary report
-  static Future<void> generateSurveySummaryReport() async {
-    print('Database functionality disabled in minimal APK build');
-    print('Summary report generation temporarily unavailable');
-
-    // Create sample summary CSV
-    List<List<String>> csvData = [];
-    csvData.add([
-      'Village',
-      'Total Families',
-      'Total Population',
-      'Avg Family Size',
-      'Total Land (Acres)',
-      'Irrigated Land (Acres)',
-      'Total Livestock',
-      'Government Beneficiaries'
-    ]);
-
-    csvData.add([
-      'Sample Village',
-      '10',
-      '45',
-      '4.5',
-      '150.00',
-      '75.00',
-      '25',
-      '8'
-    ]);
-
-    String csv = const ListToCsvConverter().convert(csvData);
-    await _saveAndShareFile(csv, 'sample_summary_report.csv');
-  }
-
-  // Helper method to save file and share
-  static Future<void> _saveAndShareFile(String csvContent, String fileName) async {
-    if (kIsWeb) {
-      // For web, download directly
-      final blob = html.Blob([csvContent], 'text/csv');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.document.createElement('a') as html.AnchorElement
-        ..href = url
-        ..download = fileName;
-      anchor.click();
-      html.Url.revokeObjectUrl(url);
-    } else {
-      // For mobile, just print the content (file system disabled for minimal APK)
-      print('File export disabled in minimal APK build');
-      print('CSV Content for $fileName:');
-      print(csvContent);
-      print('Copy the above content to save as $fileName');
+  /// Export a single survey by phone number to Excel file and save to storage
+  Future<void> exportCompleteSurveyData(String phoneNumber) async {
+    try {
+      // Use XLSX exporter (single consolidated sheet, keys-first template)
+      final fileName = 'family_survey_${phoneNumber}_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      await XlsxExportService().exportSurveyToXlsx(phoneNumber, fileName);
+    } catch (e) {
+      throw Exception('Failed to export survey: $e');
     }
   }
 
-  // Export data in JSON format for backup
-  Future<void> exportDataAsJSON() async {
+  /// Export a single village survey by session ID to Excel file and save to storage
+  Future<void> exportCompleteVillageSurveyData(String sessionId) async {
     try {
-      print('Database functionality disabled in minimal APK build');
-      print('JSON export temporarily unavailable');
+      await ExcelService().exportCompleteVillageSurveyToExcel(sessionId);
+    } catch (e) {
+      throw Exception('Failed to export village survey: $e');
+    }
+  }
 
-      // Create sample JSON data
-      Map<String, dynamic> sampleData = {
-        'surveys': [
-          {
-            'id': 1,
-            'village_name': 'Sample Village',
-            'survey_date': DateTime.now().toIso8601String(),
-            'status': 'completed'
-          }
-        ]
-      };
-
-      String jsonData = jsonEncode(sampleData);
-
-      if (kIsWeb) {
-        // For web, download directly
-        final blob = html.Blob([jsonData], 'application/json');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.document.createElement('a') as html.AnchorElement
-          ..href = url
-          ..download = 'sample_backup.json';
-        anchor.click();
-        html.Url.revokeObjectUrl(url);
-      } else {
-        // For mobile, just print the content
-        print('Sample JSON backup content:');
-        print(jsonData);
-        print('Copy the above content to save as sample_backup.json');
+  /// Generate summary report
+  Future<void> generateSurveySummaryReport() async {
+    try {
+      final sessions = await _db.getAllSurveySessions();
+      if (sessions.isEmpty) {
+        throw Exception('No surveys found');
       }
 
+      final excel = Excel.createExcel();
+      final sheet = excel['Summary Report'];
+
+      sheet.appendRow([TextCellValue('Survey Summary Report')]);
+      sheet.appendRow([]);
+      sheet.appendRow([
+        TextCellValue('Total Surveys'),
+        TextCellValue(sessions.length.toString()),
+      ]);
+
+      await _saveExcelFile(excel, 'survey_summary_${DateTime.now().millisecondsSinceEpoch}.xlsx');
     } catch (e) {
-      throw Exception('Failed to export JSON data: $e');
+      throw Exception('Failed to generate summary: $e');
+    }
+  }
+
+  /// Export data as JSON backup (dummy implementation)
+  Future<void> exportDataAsJSON() async {
+    try {
+      final sessions = await _db.getAllSurveySessions();
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = 'survey_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+      final file = File('${directory.path}/$fileName');
+      
+      // Simple JSON export
+      await file.writeAsString('{"surveys": ${sessions.length}}');
+      print('✓ JSON backup saved to: ${file.path}');
+    } catch (e) {
+      throw Exception('Failed to export JSON: $e');
+    }
+  }
+
+  Future<void> _saveExcelFile(Excel excel, String fileName) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/$fileName');
+      final bytes = excel.encode();
+      
+      if (bytes != null) {
+        await file.writeAsBytes(bytes);
+        print('✓ Excel file saved to: ${file.path}');
+      } else {
+        throw Exception('Failed to encode Excel file');
+      }
+    } catch (e) {
+      throw Exception('Failed to save Excel file: $e');
+    }
+  }
+
+  /// Build a ZIP containing:
+  ///   • all_data.json  — every table as structured JSON
+  ///   • <table>.csv    — one CSV file per table
+  Future<Uint8List> buildJsonBytes() async {
+    final db = await DatabaseHelper().database;
+
+    // Discover all user tables.
+    final tableResult = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' "
+      "AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' "
+      "ORDER BY name",
+    );
+
+    final Map<String, dynamic> jsonExport = {
+      'exported_at': DateTime.now().toIso8601String(),
+      'tables': <String, dynamic>{},
+    };
+
+    final archive = Archive();
+
+    for (final row in tableResult) {
+      final tableName = row['name'] as String;
+      try {
+        final rows = await db.query(tableName);
+        (jsonExport['tables'] as Map<String, dynamic>)[tableName] = rows;
+
+        // Build CSV for this table.
+        if (rows.isNotEmpty) {
+          final buf = StringBuffer();
+          final headers = rows.first.keys.toList();
+          buf.writeln(_csvRow(headers));
+          for (final r in rows) {
+            buf.writeln(_csvRow(headers.map((h) => r[h]).toList()));
+          }
+          final csvBytes = utf8.encode(buf.toString());
+          archive.addFile(
+            ArchiveFile('csv/$tableName.csv', csvBytes.length, csvBytes),
+          );
+        }
+      } catch (_) {
+        // Skip any table that fails to read.
+      }
+    }
+
+    // Add the combined JSON.
+    final jsonBytes =
+        utf8.encode(const JsonEncoder.withIndent('  ').convert(jsonExport));
+    archive.addFile(
+      ArchiveFile('all_data.json', jsonBytes.length, jsonBytes),
+    );
+
+    final zipBytes = ZipEncoder().encode(archive);
+    if (zipBytes == null) throw Exception('Failed to encode ZIP.');
+    return Uint8List.fromList(zipBytes);
+  }
+
+  /// Escape a single CSV field value.
+  String _csvField(dynamic value) {
+    if (value == null) return '';
+    final s = value.toString();
+    if (s.contains(',') || s.contains('"') || s.contains('\n')) {
+      return '"${s.replaceAll('"', '""')}"';
+    }
+    return s;
+  }
+
+  /// Build one CSV row from a list of values.
+  String _csvRow(List<dynamic> values) =>
+      values.map(_csvField).join(',');
+
+  /// Open the system Save-As dialog and write the ZIP file.
+  /// Call this AFTER dismissing any progress spinner.
+  Future<void> saveJsonFile(Uint8List zipData) async {
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final fileName = 'survey_data_$dateStr.zip';
+
+    final result = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Survey Data',
+      fileName: fileName,
+      bytes: zipData,
+    );
+
+    if (result == null) return; // user cancelled
+
+    // Desktop: FilePicker returns a path but does not write — write manually.
+    // Android SAF returns a content:// URI and writes itself.
+    if (!result.startsWith('content://')) {
+      final outPath = result.endsWith('.zip') ? result : '$result.zip';
+      File(outPath)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(zipData);
     }
   }
 }

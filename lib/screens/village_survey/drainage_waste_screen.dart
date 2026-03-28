@@ -1,858 +1,289 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'crop_productivity_screen.dart'; // CHANGE THIS IMPORT
+import 'package:provider/provider.dart';
+import '../../l10n/app_localizations.dart';
+import '../../form_template.dart';
+import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
+import '../../services/sync_service.dart';
+import 'educational_facilities_screen.dart';
+import 'irrigation_facilities_screen.dart';
 
 class DrainageWasteScreen extends StatefulWidget {
+  const DrainageWasteScreen({super.key});
+
   @override
-  _DrainageWasteScreenState createState() => _DrainageWasteScreenState();
+  State<DrainageWasteScreen> createState() => _DrainageWasteScreenState();
 }
 
 class _DrainageWasteScreenState extends State<DrainageWasteScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final TextEditingController drainageRemarksController = TextEditingController();
+  final TextEditingController wasteRemarksController = TextEditingController();
+  final TextEditingController drainIntoController = TextEditingController();
 
-  // Drainage system fields
-  String _selectedDrainageType = '';
-  final List<String> _drainageOptions = [
-    'Earthen Drain',
-    'Masonry Drain',
-    'No Drainage System',
-  ];
-
-  // Waste disposal fields
+  Map<String, bool> _selectedDrainageTypes = {};
   bool _hasWasteCollection = false;
-  bool _hasWasteSegregated = false;
-  bool _hasSoakPitsToilets = false;
-  bool _hasSoakPitsDrains = false;
+  bool _hasWasteSegregation = false;
 
-  // Additional remarks
-  String _drainageRemarks = '';
-  String _wasteRemarks = '';
+  @override
+  void initState() {
+    super.initState();
+    // Initialize drainage types map and load saved values (if editing existing session)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final l10n = AppLocalizations.of(context)!;
+      final options = _getDrainageOptions(l10n);
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+      // Default map (all false)
+      Map<String, bool> initialMap = {for (var option in options) option: false};
 
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Color(0xFF800080)),
-              SizedBox(width: 10),
-              Text('Drainage & Waste Data Saved'),
-            ],
+      try {
+        final databaseService = Provider.of<DatabaseService>(context, listen: false);
+        final sessionId = databaseService.currentSessionId;
+
+        if (sessionId != null) {
+          final existing = await databaseService.getVillageData('village_drainage_waste', sessionId);
+          if (existing.isNotEmpty) {
+            final row = existing.first;
+
+            // Map DB columns to localized option keys
+            initialMap[options[0]] = (row['earthen_drain'] ?? 0) == 1;
+            initialMap[options[1]] = (row['masonry_drain'] ?? 0) == 1;
+            initialMap[options[2]] = (row['covered_drain'] ?? 0) == 1;
+            initialMap[options[3]] = (row['open_channel'] ?? 0) == 1;
+            initialMap[options[4]] = (row['no_drainage_system'] ?? 0) == 1;
+
+            _hasWasteCollection = (row['waste_collected_regularly'] ?? 0) == 1;
+            _hasWasteSegregation = (row['waste_segregated'] ?? 0) == 1;
+
+            drainIntoController.text = row['drainage_destination'] ?? '';
+            drainageRemarksController.text = row['drainage_remarks'] ?? '';
+            wasteRemarksController.text = row['waste_remarks'] ?? '';
+          }
+        }
+      } catch (e) {
+        // ignore — UI will show defaults
+        debugPrint('Error loading existing drainage data: $e');
+      }
+
+      setState(() {
+        _selectedDrainageTypes = initialMap;
+      });
+    });
+  }
+
+  List<String> _getDrainageOptions(AppLocalizations l10n) {
+    return [
+      l10n.earthenDrain,
+      l10n.masonryDrain,
+      l10n.coveredDrain,
+      l10n.openChannel,
+      l10n.noDrainageSystem,
+    ];
+  }
+
+  Future<void> _submitForm() async {
+    final databaseService = Provider.of<DatabaseService>(context, listen: false);
+    final sessionId = databaseService.currentSessionId;
+
+    if (sessionId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: No active session found. Please start from Village Form.'),
+            backgroundColor: Colors.red,
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Drainage and waste management data has been saved. Continue to Crop Productivity?',
-                ),
-                SizedBox(height: 15),
+        );
+      }
+      return;
+    }
 
-                // Drainage System Summary
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE6E6FA),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Color(0xFF800080).withOpacity(0.3),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🚰 Drainage System:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF800080),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      if (_selectedDrainageType.isNotEmpty)
-                        _buildInfraItem('Type:', _selectedDrainageType),
-                      if (_drainageRemarks.isNotEmpty)
-                        _buildInfraItem('Remarks:', _drainageRemarks),
-                    ],
-                  ),
-                ),
+    // Check authentication before syncing
+    final supabaseService = Provider.of<SupabaseService>(context, listen: false);
+    final currentUser = supabaseService.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: User not authenticated. Please login again.')),
+        );
+      }
+      return;
+    }
 
-                SizedBox(height: 15),
+    try {
+      // Prepare drainage data
+      final drainageData = {
+        'session_id': sessionId,
+        'drainage_system_available': _selectedDrainageTypes.values.any((selected) => selected) ? 1 : 0,
+        'waste_management_system': (_hasWasteCollection || _hasWasteSegregation) ? 1 : 0,
+        'earthen_drain': _selectedDrainageTypes[_getDrainageOptions(AppLocalizations.of(context)!) [0]] ?? false ? 1 : 0,
+        'masonry_drain': _selectedDrainageTypes[_getDrainageOptions(AppLocalizations.of(context)!) [1]] ?? false ? 1 : 0,
+        'covered_drain': _selectedDrainageTypes[_getDrainageOptions(AppLocalizations.of(context)!) [2]] ?? false ? 1 : 0,
+        'open_channel': _selectedDrainageTypes[_getDrainageOptions(AppLocalizations.of(context)!) [3]] ?? false ? 1 : 0,
+        'no_drainage_system': _selectedDrainageTypes[_getDrainageOptions(AppLocalizations.of(context)!) [4]] ?? false ? 1 : 0,
+        'drainage_destination': drainIntoController.text.trim(),
+        'drainage_remarks': drainageRemarksController.text.trim(),
+        'waste_collected_regularly': _hasWasteCollection ? 1 : 0,
+        'waste_segregated': _hasWasteSegregation ? 1 : 0,
+        'waste_remarks': wasteRemarksController.text.trim(),
+        'created_at': DateTime.now().toIso8601String(),
+      };
 
-                // Waste Management Summary
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF3E5F5),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Color(0xFF800080).withOpacity(0.3),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🗑️ Waste Management:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF800080),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      _buildInfraItem(
-                        'Waste Collection:',
-                        _hasWasteCollection ? 'Yes' : 'No',
-                      ),
-                      _buildInfraItem(
-                        'Waste Segregated:',
-                        _hasWasteSegregated ? 'Yes' : 'No',
-                      ),
-                      _buildInfraItem(
-                        'Soak Pits for Toilets:',
-                        _hasSoakPitsToilets ? 'Yes' : 'No',
-                      ),
-                      _buildInfraItem(
-                        'Soak Pits for Drains:',
-                        _hasSoakPitsDrains ? 'Yes' : 'No',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+      // 1. Save to SQLite
+      await databaseService.insertOrUpdate('village_drainage_waste', drainageData, sessionId);
+
+      await databaseService.markVillagePageCompleted(sessionId, 4);
+      unawaited(SyncService.instance.syncVillagePageData(sessionId, 4, drainageData));
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Drainage data saved successfully'),
+            backgroundColor: Colors.green,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Edit', style: TextStyle(color: Color(0xFF800080))),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Navigate to Crop Productivity instead of Cooking Medium
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CropProductivityScreen(),
-                  ),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Drainage & waste data saved! Moving to Crop Productivity',
-                    ),
-                    backgroundColor: Color(0xFF800080),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF800080),
-              ),
-              child: Text(
-                'Continue to Crop Productivity',
-              ), // CHANGE BUTTON TEXT
-            ),
-          ],
-        ),
+        );
+      }
+
+      // Navigate to next screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const IrrigationFacilitiesScreen()),
       );
+    } catch (e) {
+      print('Critical error saving drainage data: $e');
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving drainage data locally: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  Widget _buildInfraItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 150,
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF800080),
-              ),
-            ),
-          ),
-        ],
-      ),
+  void _goToPreviousScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const EducationalFacilitiesScreen()),
     );
   }
 
   void _resetForm() {
-    _formKey.currentState?.reset();
     setState(() {
-      _selectedDrainageType = '';
+      _selectedDrainageTypes.updateAll((key, value) => false);
       _hasWasteCollection = false;
-      _hasWasteSegregated = false;
-      _hasSoakPitsToilets = false;
-      _hasSoakPitsDrains = false;
-      _drainageRemarks = '';
-      _wasteRemarks = '';
+      _hasWasteSegregation = false;
     });
+    drainageRemarksController.clear();
+    wasteRemarksController.clear();
+    drainIntoController.clear();
+  }
+
+  Widget _buildDrainageContent() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        CheckboxList(
+          label: l10n.typeOfDrainageSystem,
+          description: l10n.selectTheDrainageSystemAvailableInTheVillage,
+          items: _selectedDrainageTypes,
+          onChanged: (selected) {
+            setState(() {
+              _selectedDrainageTypes = selected;
+            });
+          },
+        ),
+
+        const SizedBox(height: 15),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextInput(
+            label: l10n.remarksOptional,
+            controller: drainageRemarksController,
+            prefixIcon: Icons.note_alt_outlined,
+            isRequired: false,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        QuestionCard(
+          question: 'Where does the drainage drain into?',
+          description: 'Specify the destination of the drainage system',
+          child: TextInput(
+            label: 'Drainage destination',
+            controller: drainIntoController,
+            prefixIcon: Icons.location_on_outlined,
+            isRequired: false,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        QuestionCard(
+          question: l10n.wasteAndSanitation,
+          description: l10n.optionalDetailsAboutCollectionAndSegregation,
+          child: Column(
+            children: [
+              RadioOptionGroup(
+                label: l10n.isWasteCollectedRegularly,
+                options: [l10n.yes, l10n.no],
+                selectedValue: _hasWasteCollection ? l10n.yes : l10n.no,
+                onChanged: (value) {
+                  setState(() {
+                    _hasWasteCollection = value == l10n.yes;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              RadioOptionGroup(
+                label: l10n.isWasteSegregated,
+                options: [l10n.yes, l10n.no],
+                selectedValue: _hasWasteSegregation ? l10n.yes : l10n.no,
+                onChanged: (value) {
+                  setState(() {
+                    _hasWasteSegregation = value == l10n.yes;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              TextInput(
+                label: l10n.remarksOptional,
+                controller: wasteRemarksController,
+                prefixIcon: Icons.comment_bank_outlined,
+                isRequired: false,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Government of India Header
-            Container(
-              width: double.infinity,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Government of India Text
-                    Text(
-                      'Government of India',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF003366),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    // Digital India Text
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Digital India',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Power To Empower',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF138808),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Main Form Container
-            Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/indian_background.jpg'),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.white.withOpacity(0.1),
-                    BlendMode.dstATop,
-                  ),
-                ),
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Form Header Card
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200, width: 1),
-                      ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.water_damage,
-                                  color: Color(0xFF800080),
-                                  size: 32,
-                                ),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Drainage & Waste Management',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Step 8: Drainage system and waste disposal',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Container(
-                              height: 4,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF800080),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 25),
-
-                    // Drainage System Section
-                    _buildQuestionWithBackground(
-                      question: '8a) Type of drainage system',
-                      description:
-                          'Select the type of drainage system in village',
-                      child: Column(
-                        children: [
-                          // Drainage Type Dropdown
-                          _buildDropdownField(
-                            label: 'Drainage System Type',
-                            icon: Icons.waves,
-                            value: _selectedDrainageType,
-                            items: _drainageOptions,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please select drainage type';
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDrainageType = value ?? '';
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 15),
-
-                          // Drainage Remarks
-                          _buildTextField(
-                            label: 'Remarks about drainage system',
-                            icon: Icons.note,
-                            onSaved: (value) => _drainageRemarks = value ?? '',
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 25),
-
-                    // Waste Disposal Section
-                    _buildQuestionWithBackground(
-                      question: '8b) Waste Disposal',
-                      description: 'Waste management practices in village',
-                      child: Column(
-                        children: [
-                          // Waste Collection
-                          _buildWasteRadioField(
-                            label: 'Waste Collection',
-                            value: _hasWasteCollection,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasWasteCollection = value!;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 15),
-
-                          // Waste Segregated
-                          _buildWasteRadioField(
-                            label: 'Waste Segregated',
-                            value: _hasWasteSegregated,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasWasteSegregated = value!;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 15),
-
-                          // Soak Pits for Toilets
-                          _buildWasteRadioField(
-                            label: 'Soak Pits for Toilets',
-                            value: _hasSoakPitsToilets,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasSoakPitsToilets = value!;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 15),
-
-                          // Soak Pits for Drains
-                          _buildWasteRadioField(
-                            label: 'Soak Pits for Drains',
-                            value: _hasSoakPitsDrains,
-                            onChanged: (value) {
-                              setState(() {
-                                _hasSoakPitsDrains = value!;
-                              });
-                            },
-                          ),
-
-                          SizedBox(height: 15),
-
-                          // Waste Remarks
-                          _buildTextField(
-                            label: 'Remarks about waste management',
-                            icon: Icons.note,
-                            onSaved: (value) => _wasteRemarks = value ?? '',
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-
-                    // Summary Card
-                    if (_selectedDrainageType.isNotEmpty ||
-                        _hasWasteCollection ||
-                        _hasWasteSegregated)
-                      _buildSummaryCard(),
-
-                    SizedBox(height: 30),
-
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _resetForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade700,
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.refresh),
-                            label: Text('Reset Form'),
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _submitForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF800080),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.arrow_forward, size: 24),
-                            label: Text(
-                              'Save & Continue',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 20),
-
-                    // Progress Indicator with next step info
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Color(0xFF800080).withOpacity(0.3),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.water_damage,
-                                color: Color(0xFF800080),
-                                size: 24,
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Step 8: Sanitation and waste management data collection',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.navigate_next,
-                                  color: Colors.green.shade700,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Next: Crop Productivity',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.green.shade800,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    final l10n = AppLocalizations.of(context)!;
+    return FormTemplateScreen(
+      title: l10n.drainageSystem,
+      stepNumber: l10n.step5,
+      instructions: l10n.recordTheTypeOfDrainageSystemAndRelatedWasteHandling,
+      contentWidget: _buildDrainageContent(),
+      onSubmit: _submitForm,
+      onBack: _goToPreviousScreen,
+      onReset: _resetForm,
+      nextScreenRoute: '/irrigation-facilities',
+      nextScreenName: l10n.availableIrrigationFacilities,
+      icon: Icons.water_damage,
     );
   }
 
-  // Widget for question with background image
-  Widget _buildQuestionWithBackground({
-    required String question,
-    required Widget child,
-    String? description,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      margin: EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(30, 128, 0, 128),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xFF800080).withOpacity(0.3), width: 1),
-        image: DecorationImage(
-          image: AssetImage('assets/images/form_background.png'),
-          fit: BoxFit.cover,
-          opacity: 0.05,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Question Text with Purple Padding
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Color(0xFF800080),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                if (description != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15),
-          // Input Field
-          child,
-        ],
-      ),
-    );
-  }
-
-  // Waste Radio Field
-  Widget _buildWasteRadioField({
-    required String label,
-    required bool value,
-    required Function(bool?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
-          ),
-        ),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: RadioListTile<bool>(
-                title: Text(
-                  'Yes',
-                  style: TextStyle(color: Colors.grey.shade800),
-                ),
-                value: true,
-                groupValue: value,
-                onChanged: onChanged,
-                activeColor: Color(0xFF800080),
-                dense: true,
-              ),
-            ),
-            Expanded(
-              child: RadioListTile<bool>(
-                title: Text(
-                  'No',
-                  style: TextStyle(color: Colors.grey.shade800),
-                ),
-                value: false,
-                groupValue: value,
-                onChanged: onChanged,
-                activeColor: Color(0xFF800080),
-                dense: true,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Dropdown Field Widget
-  Widget _buildDropdownField({
-    required String label,
-    required IconData icon,
-    required String value,
-    required List<String> items,
-    required FormFieldValidator<String?> validator,
-    required Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
-          ),
-        ),
-        SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: DropdownButtonFormField<String>(
-            value: value.isEmpty ? null : value,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-              prefixIcon: Icon(icon, color: Color(0xFF800080)),
-            ),
-            hint: Text(
-              'Select drainage type',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            items: items.map((String item) {
-              return DropdownMenuItem<String>(value: item, child: Text(item));
-            }).toList(),
-            onChanged: onChanged,
-            validator: validator,
-            isExpanded: true,
-            icon: Icon(Icons.arrow_drop_down, color: Color(0xFF800080)),
-            style: TextStyle(color: Colors.grey.shade800),
-            dropdownColor: Colors.white,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Text Field Widget
-  Widget _buildTextField({
-    required String label,
-    required IconData icon,
-    required FormFieldSetter<String?> onSaved,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade600),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Color(0xFF800080), width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        prefixIcon: Icon(icon, color: Color(0xFF800080)),
-      ),
-      onSaved: onSaved,
-      style: TextStyle(color: Colors.grey.shade800),
-    );
-  }
-
-  // Summary Card
-  Widget _buildSummaryCard() {
-    return Card(
-      elevation: 2,
-      color: Colors.amber.shade50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.amber.shade200, width: 1),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.summarize, color: Color(0xFF800080)),
-                SizedBox(width: 8),
-                Text(
-                  '📋 Drainage & Waste Summary:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF800080),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            if (_selectedDrainageType.isNotEmpty)
-              _buildSummaryItem('Drainage System:', _selectedDrainageType),
-            if (_hasWasteCollection)
-              _buildSummaryItem(
-                'Waste Collection:',
-                _hasWasteCollection ? 'Yes' : 'No',
-              ),
-            if (_hasWasteSegregated)
-              _buildSummaryItem(
-                'Waste Segregated:',
-                _hasWasteSegregated ? 'Yes' : 'No',
-              ),
-            if (_hasSoakPitsToilets)
-              _buildSummaryItem(
-                'Soak Pits for Toilets:',
-                _hasSoakPitsToilets ? 'Yes' : 'No',
-              ),
-            if (_hasSoakPitsDrains)
-              _buildSummaryItem(
-                'Soak Pits for Drains:',
-                _hasSoakPitsDrains ? 'Yes' : 'No',
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF800080),
-            ),
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    drainageRemarksController.dispose();
+    wasteRemarksController.dispose();
+    drainIntoController.dispose();
+    super.dispose();
   }
 }

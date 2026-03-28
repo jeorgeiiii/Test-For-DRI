@@ -1,141 +1,116 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
+import '../../services/sync_service.dart';
+import 'cadastral_map_screen.dart'; // Import the previous screen
 import 'biodiversity_register_screen.dart';
 
 class ForestMapScreen extends StatefulWidget {
+  const ForestMapScreen({super.key});
+
   @override
   _ForestMapScreenState createState() => _ForestMapScreenState();
 }
 
 class _ForestMapScreenState extends State<ForestMapScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   TextEditingController forestAreaController = TextEditingController();
   TextEditingController forestTypesController = TextEditingController();
   TextEditingController forestResourcesController = TextEditingController();
   TextEditingController conservationStatusController = TextEditingController();
+  TextEditingController remarksController = TextEditingController();
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Color(0xFF800080)),
-              SizedBox(width: 10),
-              Text('Forest Map Data Saved'),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Forest map information has been saved. Continue to Biodiversity Register?'),
-                SizedBox(height: 15),
-                
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFE6E6FA),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('🌳 Forest Map Summary:', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF800080))),
-                      SizedBox(height: 8),
-                      if (forestAreaController.text.isNotEmpty)
-                        _buildSummaryItem('Forest Area:', forestAreaController.text),
-                      if (forestTypesController.text.isNotEmpty)
-                        _buildSummaryItem('Forest Types:', 'Documented'),
-                      if (forestResourcesController.text.isNotEmpty)
-                        _buildSummaryItem('Forest Resources:', 'Listed'),
-                      
-                      Container(
-                        margin: EdgeInsets.only(top: 8),
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.forest, color: Colors.green, size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              'Forest resource documentation complete',
-                              style: TextStyle(color: Colors.green.shade800),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Edit', style: TextStyle(color: Color(0xFF800080))),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BiodiversityRegisterScreen()),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Forest map data saved! Moving to Biodiversity Register'),
-                    backgroundColor: Color(0xFF800080),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF800080)),
-              child: Text('Continue to Biodiversity Register'),
-            ),
-          ],
-        ),
+  @override
+  void initState() {
+    super.initState();
+    // Load existing forest map row if editing
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final databaseService = Provider.of<DatabaseService>(context, listen: false);
+        final sessionId = databaseService.currentSessionId;
+        if (sessionId == null) return;
+
+        final rows = await databaseService.getVillageData('village_forest_maps', sessionId);
+        if (rows.isNotEmpty) {
+          final row = rows.first;
+          forestAreaController.text = (row['forest_area'] ?? '') as String;
+          forestTypesController.text = (row['forest_types'] ?? '') as String;
+          forestResourcesController.text = (row['forest_resources'] ?? '') as String;
+          conservationStatusController.text = (row['conservation_status'] ?? '') as String;
+          remarksController.text = (row['remarks'] ?? '') as String;
+          setState(() {});
+        }
+      } catch (e) {
+        debugPrint('Error loading forest map data: $e');
+      }
+    });
+  }
+
+  Future<void> _submitForm() async {
+    final databaseService = Provider.of<DatabaseService>(context, listen: false);
+    final syncService = SyncService.instance;
+    final sessionId = databaseService.currentSessionId;
+
+    if (sessionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: No active session found')),
       );
+      return;
+    }
+
+    // Check authentication before syncing
+    final supabaseService = Provider.of<SupabaseService>(context, listen: false);
+    final currentUser = supabaseService.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: User not authenticated. Please login again.')),
+        );
+      }
+      return;
+    }
+
+    final data = {
+      'session_id': sessionId,
+      'forest_area': forestAreaController.text,
+      'forest_types': forestTypesController.text,
+      'forest_resources': forestResourcesController.text,
+      'conservation_status': conservationStatusController.text,
+      'remarks': remarksController.text,
+      'created_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      await databaseService.insertOrUpdate('village_forest_maps', data, sessionId);
+
+      await databaseService.markVillagePageCompleted(sessionId, 11);
+      unawaited(syncService.syncVillagePageData(sessionId, 11, data));
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => BiodiversityRegisterScreen()),
+        );
+      }
+    } catch (e) {
+      print('Error saving data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving data: $e')),
+        );
+      }
     }
   }
 
-  Widget _buildSummaryItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 150,
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF800080)),
-            ),
-          ),
-        ],
-      ),
+  void _goToPreviousScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CadastralMapScreen()),
     );
-  }
-
-  void _resetForm() {
-    _formKey.currentState?.reset();
-    setState(() {
-      forestAreaController.clear();
-      forestTypesController.clear();
-      forestResourcesController.clear();
-      conservationStatusController.clear();
-    });
   }
 
   @override
@@ -145,62 +120,9 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Government of India Header
-            Container(
-              width: double.infinity,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Government of India',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF003366),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Digital India',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Power To Empower',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF138808),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
+            // Header removed (Govt/Platform labels stripped)
+            SizedBox(height: 12),
+
             Container(
               padding: EdgeInsets.all(20),
               child: Form(
@@ -235,7 +157,7 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                             ),
                             SizedBox(height: 10),
                             Text(
-                              'Step 31: Forest map documentation for village',
+                              'Step 13: Forest map documentation for village',
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 15,
@@ -254,16 +176,16 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ),
                       ),
                     ),
-                    
+
                     SizedBox(height: 25),
-                    
+
                     // Forest Area
                     Container(
                       padding: EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
+border: Border.all(color: Color(0xFF800080).withValues(alpha: 0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,9 +217,9 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ],
                       ),
                     ),
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Forest Types
                     Container(
                       padding: EdgeInsets.all(15),
@@ -337,9 +259,9 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ],
                       ),
                     ),
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Forest Resources
                     Container(
                       padding: EdgeInsets.all(15),
@@ -379,9 +301,9 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ],
                       ),
                     ),
-                    
+
                     SizedBox(height: 20),
-                    
+
                     // Conservation Status
                     Container(
                       padding: EdgeInsets.all(15),
@@ -415,23 +337,63 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ],
                       ),
                     ),
-                    
+
+                    SizedBox(height: 20),
+
+                    // Remarks Input Box
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Remarks',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF800080),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          TextFormField(
+                            controller: remarksController,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              labelText: 'Additional remarks or comments',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              helperText: 'Any additional notes or observations',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     SizedBox(height: 30),
-                    
+
+                    // Buttons - Previous and Continue
                     Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _resetForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade700,
+                          child: OutlinedButton.icon(
+                            onPressed: _goToPreviousScreen,
+                            style: OutlinedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
+                              side: BorderSide(color: Color(0xFF800080), width: 2),
                             ),
-                            icon: Icon(Icons.refresh),
-                            label: Text('Reset Form'),
+                            icon: Icon(Icons.arrow_back, size: 24),
+                            label: Text(
+                              'Previous',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
                           ),
                         ),
                         SizedBox(width: 15),
@@ -454,63 +416,8 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
                         ),
                       ],
                     ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Progress Indicator
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.forest, color: Color(0xFF800080), size: 24),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Step 31: Forest map documentation',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.navigate_next, color: Colors.green.shade700, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Next: People\'s Biodiversity Register',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.green.shade800,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
+
+                    SizedBox(height: 40), // Extra padding at bottom
                   ],
                 ),
               ),
@@ -527,6 +434,7 @@ class _ForestMapScreenState extends State<ForestMapScreen> {
     forestTypesController.dispose();
     forestResourcesController.dispose();
     conservationStatusController.dispose();
+    remarksController.dispose();
     super.dispose();
   }
 }

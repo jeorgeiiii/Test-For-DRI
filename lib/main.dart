@@ -4,41 +4,112 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:provider/provider.dart' as p;
+import 'package:provider/single_child_widget.dart';
 
 import 'l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
-import 'screens/auth/auth_screen.dart';
-import 'screens/landing/landing_screen.dart';
-import 'screens/survey/survey_screen.dart';
+import 'services/sync_service.dart';
+import 'services/database_service.dart';
+import 'services/supabase_service.dart';
+import 'router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Track whether Supabase was initialized successfully
+  var supabaseInitialized = false;
 
-  // Load environment variables
-  await dotenv.load(fileName: "assets/.env");
+  try {
+    // Load environment variables (skip for web)
+    if (!kIsWeb) {
+      await dotenv.load(fileName: "assets/.env");
+    }
 
-  // Initialize Supabase
-  await Supabase.initialize(
-    url: dotenv.env["SUPABASE_URL"] ?? '',
-    anonKey: dotenv.env["SUPABASE_KEY"] ?? '',
-  );
+    // Initialize Supabase
+    final supabaseUrl = kIsWeb
+        ? const String.fromEnvironment('SUPABASE_URL', defaultValue: '')
+        : (dotenv.env["SUPABASE_URL"] ?? '');
+    final supabaseKey = kIsWeb
+        ? const String.fromEnvironment('SUPABASE_KEY', defaultValue: '')
+        : (dotenv.env["SUPABASE_KEY"] ?? '');
+
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabaseKey,
+    );
+    supabaseInitialized = true;
+
+    // Initialize sync service for offline data management
+    // This will start monitoring connectivity and syncing data when online
+    final syncService = SyncService.instance;
+    // Ensure connectivity monitoring is initialized by accessing the isOnline getter
+    await syncService.isOnline;
+  } catch (e) {
+    // If Supabase initialization fails, continue without it
+  }
+
+  // Build provider list conditionally: only add Supabase-dependent providers
+  final providers = <SingleChildWidget>[
+    p.Provider<DatabaseService>(create: (_) => DatabaseService()),
+  ];
+  if (supabaseInitialized) {
+    providers.addAll([
+      p.Provider<SupabaseService>(create: (_) => SupabaseService.instance),
+      p.Provider<SyncService>(create: (_) => SyncService.instance),
+    ]);
+  }
 
   runApp(
-    const ProviderScope(
-      child: FamilySurveyApp(),
+    ProviderScope(
+      child: p.MultiProvider(
+        providers: providers,
+        child: const FamilySurveyApp(),
+      ),
     ),
   );
 }
 
-class FamilySurveyApp extends ConsumerWidget {
+
+
+class FamilySurveyApp extends ConsumerStatefulWidget {
   const FamilySurveyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FamilySurveyApp> createState() => _FamilySurveyAppState();
+}
+
+class _FamilySurveyAppState extends ConsumerState<FamilySurveyApp> {
+  String _initialRoute = '/';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+  }
+
+  void _checkAuthState() {
+    // If Supabase wasn't initialized, skip checking and go to auth
+    try {
+      // Accessing Supabase.instance when it hasn't been initialized throws an assertion.
+      // Guard by checking whether it's initialized via Supabase.instance (catch will handle it).
+      final session = Supabase.instance.client.auth.currentSession;
+      setState(() {
+        _initialRoute = session != null ? '/' : '/auth';
+      });
+    } catch (e) {
+      setState(() {
+        _initialRoute = '/auth';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
 
     return MaterialApp(
-      title: 'Family Survey',
+      title: 'DRI Survey App',
       debugShowCheckedModeBanner: false,
       locale: locale,
       localizationsDelegates: const [
@@ -51,11 +122,8 @@ class FamilySurveyApp extends ConsumerWidget {
         Locale('en'), // English
         Locale('hi'), // Hindi
       ],
-      routes: {
-        '/': (context) => const LandingScreen(),
-        '/auth': (context) => const AuthScreen(),
-        '/survey': (context) => const SurveyScreen(),
-      },
+      routes: AppRouter.routes,
+      initialRoute: _initialRoute,
       theme: ThemeData(
         fontFamily: GoogleFonts.poppins().fontFamily,
         primarySwatch: Colors.green,
@@ -86,7 +154,6 @@ class FamilySurveyApp extends ConsumerWidget {
           ),
         ),
       ),
-      initialRoute: '/',
     );
   }
 }

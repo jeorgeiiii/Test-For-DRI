@@ -1,8 +1,14 @@
 // completion_screen.dart
 import 'package:flutter/material.dart';
-import 'village_form_screen.dart';
+import 'package:provider/provider.dart';
+import '../../services/database_service.dart';
+import '../../database/database_helper.dart';
+import '../../services/sync_service.dart';
+import 'village_survey_preview_page.dart';
 
 class CompletionScreen extends StatelessWidget {
+  const CompletionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +44,7 @@ class CompletionScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: Offset(0, 5),
                   ),
@@ -46,33 +52,8 @@ class CompletionScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Text(
-                    'Government of India',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF003366),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Digital India',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFFF9933),
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Power To Empower',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF138808),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 8),
+
                   Text(
                     'Thank you for your valuable contribution to village data collection.',
                     textAlign: TextAlign.center,
@@ -83,18 +64,47 @@ class CompletionScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => VillageFormScreen()),
-                        (route) => false,
-                      );
+                    onPressed: () async {
+                      try {
+                        final databaseService = Provider.of<DatabaseService>(context, listen: false);
+                        final syncService = SyncService.instance;
+                        final sessionId = databaseService.currentSessionId;
+
+                        if (sessionId != null) {
+                          await databaseService.updateVillageSurveyStatus(sessionId, 'completed');
+                          await syncService.syncVillageSurveyToSupabase(sessionId);
+
+                          // Get the shine_code from the session
+                          final session = await databaseService.getVillageSurveySession(sessionId);
+                          final shineCode = session?['shine_code'] as String?;
+
+                          if (shineCode != null) {
+                            // Navigate to preview page instead of home
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => VillageSurveyPreviewPage(
+                                  shineCode: shineCode,
+                                  fromHistory: false,
+                                  showSubmitButton: true, // Show submit button from survey flow
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                        }
+                      } catch (e) {
+                        print('Error loading preview: $e');
+                      }
+
+                      // Fallback to home if anything fails
+                      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF800080),
                       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     ),
-                    icon: Icon(Icons.home),
-                    label: Text('Back to Home'),
+                    icon: Icon(Icons.preview),
+                    label: Text('View Survey'),
                   ),
                 ],
               ),

@@ -1,11 +1,11 @@
 {
-  "name": "edusurvey",
-  "short_name": "edusurvey",
+  "name": "DRI survey app",
+  "short_name": "DRI survey app",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0175C2",
   "theme_color": "#0175C2",
-  "description": "A new Flutter project.",
+  "description": "DRI Survey App - Comprehensive family survey application for Deendayal Research Institute",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

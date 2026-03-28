@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Family Survey';
+  String get appTitle => 'DRI PRA App';
 
   @override
   String get startFamilyQuiz => 'Start Family Quiz';
@@ -355,6 +355,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get electricConnection => 'Electric Connection';
+
+  @override
+  String get electricalConnection => 'Electrical Connection';
 
   @override
   String get nutritionalGarden => 'Nutritional Kitchen Garden';
@@ -1053,4 +1056,335 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectDrinkingWaterSource => 'Select Drinking Water Source';
+
+  @override
+  String get familySurvey => 'Family Survey';
+
+  @override
+  String get deendayalResearchInstitute => 'Deendayal Research Institute';
+
+  @override
+  String get helpAndSupport => 'Help & Support';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get version => 'Version 1.0.0';
+
+  @override
+  String get surveyUser => 'Survey User';
+
+  @override
+  String get phoneNumberDisplay => 'Phone: +91 2525252525';
+
+  @override
+  String get profileManagementMessage =>
+      'Profile management features will be implemented here.';
+
+  @override
+  String get languageChangedToEnglish => 'Language changed to English';
+
+  @override
+  String get languageChangedToHindi => 'भाषा हिंदी में बदल दी गई';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get fontSize => 'Font Size';
+
+  @override
+  String get resetToDefault => 'Reset to Default';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get dataManagement => 'Data Management';
+
+  @override
+  String get userGuide => 'User Guide';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get reportIssue => 'Report Issue';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get familySurveyApp => 'Family Survey App';
+
+  @override
+  String get appDescription =>
+      'Comprehensive family survey application for rural development and government schemes.';
+
+  @override
+  String get developedBy => 'Developed by Deendayal Research Institute';
+
+  @override
+  String get logoutConfirm => 'Logout';
+
+  @override
+  String get logoutMessage =>
+      'Are you sure you want to logout? Your current survey progress will be saved locally.';
+
+  @override
+  String get villageInformation => 'Village Information';
+
+  @override
+  String get step1 => 'Step 1';
+
+  @override
+  String get fillVillageDetails =>
+      'Please fill all the details about the village';
+
+  @override
+  String get nameOfVillage => 'Name of village *';
+
+  @override
+  String get officialNameOfVillage => 'Official name of the village';
+
+  @override
+  String get enterVillageName => 'Enter village name';
+
+  @override
+  String get educationalFacilities => 'Educational Facilities';
+
+  @override
+  String get step7 => 'Step 7';
+
+  @override
+  String get otherEducationalFacilities =>
+      'Other educational facilities and type';
+
+  @override
+  String get numberOfAnganwadi => 'a) No. of Anganwadi';
+
+  @override
+  String get anganwadiCenters => 'Number of Anganwadi centers in village';
+
+  @override
+  String get enterNumberOfAnganwadi => 'Enter number of Anganwadi';
+
+  @override
+  String get numberOfShikshaGuarantee =>
+      'b) No. of Shiksha Guarantee Beneficiaries';
+
+  @override
+  String get shikshaGuaranteeBeneficiaries =>
+      'Number of beneficiaries under Shiksha Guarantee Scheme';
+
+  @override
+  String get enterNumberOfBeneficiaries => 'Enter number of beneficiaries';
+
+  @override
+  String get otherEducationalFacilitiesTitle => 'Other Educational Facilities';
+
+  @override
+  String get otherEducationalFacilitiesDesc =>
+      'Other educational facilities in village';
+
+  @override
+  String get facilityName =>
+      'Facility Name (e.g., Coaching Center, Library, etc.)';
+
+  @override
+  String get numberOfSuchFacilities => 'Number of such facilities';
+
+  @override
+  String get infrastructureInformation => 'Infrastructure Information';
+
+  @override
+  String get step5 => 'Step 5';
+
+  @override
+  String get availabilityApproachRoadsInternalLanes =>
+      'Availability of Approach Roads and Internal Lanes';
+
+  @override
+  String get approachRoads => 'Approach Roads';
+
+  @override
+  String get availabilityConditionApproachRoads =>
+      'Availability and condition of approach roads to village';
+
+  @override
+  String get areApproachRoadsAvailable => 'Are Approach Roads available?';
+
+  @override
+  String get numberOfApproachRoads => 'Number of Approach Roads';
+
+  @override
+  String get conditionOfApproachRoads => 'Condition of Approach Roads';
+
+  @override
+  String get remarksIfAny => 'Remarks (if any)';
+
+  @override
+  String get internalLanes => 'Internal Lanes';
+
+  @override
+  String get availabilityConditionInternalLanes =>
+      'Availability and condition of internal lanes in village';
+
+  @override
+  String get areInternalLanesAvailable => 'Are Internal Lanes available?';
+
+  @override
+  String get numberOfInternalLanes => 'Number of Internal Lanes';
+
+  @override
+  String get conditionOfInternalLanes => 'Condition of Internal Lanes';
+
+  @override
+  String get schoolAvailability => 'School Availability';
+
+  @override
+  String get availabilityOfDifferentTypesOfSchools =>
+      'Availability of different types of schools';
+
+  @override
+  String get primarySchoolUpto5thStandard =>
+      'Primary School (Upto 5th Standard)';
+
+  @override
+  String get juniorSchool6thTo8thStandard =>
+      'Junior School (6th to 8th Standard)';
+
+  @override
+  String get highSchool9thTo10thStandard =>
+      'High School (9th to 10th Standard)';
+
+  @override
+  String get intermediateSchool102 => 'Intermediate School (10+2)';
+
+  @override
+  String get otherLikeAnganwadiShikshaGuaranteeSchemeEtc =>
+      'Other (like Anganwadi, Shiksha Guarantee Scheme, etc.)';
+
+  @override
+  String get numberOfStudents => 'Number of Students';
+
+  @override
+  String get totalNumberOfStudentsInVillage =>
+      'Total number of students in village';
+
+  @override
+  String get boys => 'Boys';
+
+  @override
+  String get girls => 'Girls';
+
+  @override
+  String get otherInfrastructureFacilities => 'Other Infrastructure Facilities';
+
+  @override
+  String get availabilityOfVariousInfrastructureFacilities =>
+      'Availability of various infrastructure facilities';
+
+  @override
+  String get playground => 'Playground';
+
+  @override
+  String get panchayatBhavan => 'Panchayat Bhavan';
+
+  @override
+  String get shardaKendraPlaceOfWorship => 'Sharda Kendra (Place of Worship)';
+
+  @override
+  String get healthFacilityGeneralPractitioners =>
+      'Health Facility (General Practitioners)';
+
+  @override
+  String get primaryHealthCentre => 'Primary Health Centre';
+
+  @override
+  String get bank => 'Bank';
+
+  @override
+  String get infrastructureAvailabilityInVillage =>
+      'Infrastructure Availability in Village';
+
+  @override
+  String get availabilityOfInfrastructure => 'Availability of Infrastructure';
+
+  @override
+  String get typeOfDrainageSystem => 'Type of drainage system';
+
+  @override
+  String get selectTheDrainageSystemAvailableInTheVillage =>
+      'Select the drainage system available in the village';
+
+  @override
+  String get drainageSystemType => 'Drainage system type';
+
+  @override
+  String get remarksOptional => 'Remarks (optional)';
+
+  @override
+  String get wasteAndSanitation => 'Waste and sanitation';
+
+  @override
+  String get optionalDetailsAboutCollectionAndSegregation =>
+      'Optional details about collection and segregation';
+
+  @override
+  String get isWasteCollectedRegularly => 'Is waste collected regularly?';
+
+  @override
+  String get isWasteSegregated => 'Is waste segregated?';
+
+  @override
+  String get earthenDrain => 'Earthen drain';
+
+  @override
+  String get masonryDrain => 'Masonry drain';
+
+  @override
+  String get coveredDrain => 'Covered drain';
+
+  @override
+  String get openChannel => 'Open channel';
+
+  @override
+  String get noDrainageSystem => 'No drainage system';
+
+  @override
+  String get drainageSystem => 'Drainage System';
+
+  @override
+  String get recordTheTypeOfDrainageSystemAndRelatedWasteHandling =>
+      'Record the type of drainage system and related waste handling.';
+
+  @override
+  String get availableIrrigationFacilities => 'Available Irrigation Facilities';
+
+  @override
+  String get selectYesOrNoForEachFacility =>
+      'Select Yes or No for each facility';
+
+  @override
+  String get river => 'River';
+
+  @override
+  String get selectedFacilities => 'Selected Facilities';
+
+  @override
+  String get step6 => 'Step 6';
+
+  @override
+  String get seedClubs => 'Seed Clubs';
+
+  @override
+  String get locationCoordinates => 'Location Coordinates';
+
+  @override
+  String get captureGpsCoordinates => 'Capture GPS Coordinates';
 }

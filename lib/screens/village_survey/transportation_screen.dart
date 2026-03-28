@@ -1,16 +1,21 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'panchavati_trees_screen.dart';
+import 'package:provider/provider.dart';
+import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
+import '../../services/sync_service.dart';
+import '../../form_template.dart';
+import 'irrigation_facilities_screen.dart'; // Import the previous screen
 
 class TransportationScreen extends StatefulWidget {
+  const TransportationScreen({super.key});
+
   @override
   _TransportationScreenState createState() => _TransportationScreenState();
 }
 
 class _TransportationScreenState extends State<TransportationScreen> {
-  final _formKey = GlobalKey<FormState>();
-  
-  // Transportation vehicles count
-  final Map<String, TextEditingController> transportationData = {
+  final Map<String, TextEditingController> vehicles = {
     'Tractor': TextEditingController(),
     'Car/Jeep': TextEditingController(),
     'Motorcycle/Scooter': TextEditingController(),
@@ -19,434 +24,225 @@ class _TransportationScreenState extends State<TransportationScreen> {
     'Pick-up/Truck': TextEditingController(),
   };
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Calculate totals
-      int totalVehicles = 0;
-      transportationData.forEach((vehicle, controller) {
-        int count = int.tryParse(controller.text) ?? 0;
-        totalVehicles += count;
-      });
-      
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.check_circle, color: Color(0xFF800080)),
-              SizedBox(width: 10),
-              Text('Transportation Data Saved'),
-            ],
-          ),
-          content: SingleChildScrollView(
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final databaseService = Provider.of<DatabaseService>(context, listen: false);
+        final sessionId = databaseService.currentSessionId;
+        if (sessionId == null) return;
+
+        final rows = await databaseService.getVillageData('village_transport_facilities', sessionId);
+        if (rows.isNotEmpty) {
+          final row = rows.first;
+          vehicles['Tractor']?.text = (row['tractor_count'] ?? '').toString();
+          vehicles['Car/Jeep']?.text = (row['car_jeep_count'] ?? '').toString();
+          vehicles['Motorcycle/Scooter']?.text = (row['motorcycle_scooter_count'] ?? '').toString();
+          vehicles['Cycle']?.text = (row['cycle_count'] ?? '').toString();
+          vehicles['E-rickshaw']?.text = (row['e_rickshaw_count'] ?? '').toString();
+          vehicles['Pick-up/Truck']?.text = (row['pickup_truck_count'] ?? '').toString();
+          setState(() {});
+        }
+      } catch (e) {
+        debugPrint('Error loading transport data: $e');
+      }
+    });
+  }
+
+  Future<void> _submitForm() async {
+    final databaseService = Provider.of<DatabaseService>(context, listen: false);
+    final sessionId = databaseService.currentSessionId;
+
+    if (sessionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: No active session found')),
+      );
+      return;
+    }
+
+    // Check authentication before syncing
+    final supabaseService = Provider.of<SupabaseService>(context, listen: false);
+    final currentUser = supabaseService.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error: User not authenticated. Please login again.')),
+        );
+      }
+      return;
+    }
+
+    final data = {
+      'session_id': sessionId,
+      'road_connectivity': 0,
+      'public_transport_available': 0,
+      'tractor_count': int.tryParse(vehicles['Tractor']?.text ?? '') ?? 0,
+      'car_jeep_count': int.tryParse(vehicles['Car/Jeep']?.text ?? '') ?? 0,
+      'motorcycle_scooter_count': int.tryParse(vehicles['Motorcycle/Scooter']?.text ?? '') ?? 0,
+      'cycle_count': int.tryParse(vehicles['Cycle']?.text ?? '') ?? 0,
+      'e_rickshaw_count': int.tryParse(vehicles['E-rickshaw']?.text ?? '') ?? 0,
+      'pickup_truck_count': int.tryParse(vehicles['Pick-up/Truck']?.text ?? '') ?? 0,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      await databaseService.insertOrUpdate('village_transport_facilities', data, sessionId);
+
+      await databaseService.markVillagePageCompleted(sessionId, 14);
+      unawaited(SyncService.instance.syncVillagePageData(sessionId, 14, data));
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print('Error saving data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving data: $e')),
+        );
+      }
+    }
+  }
+
+  void _goToPreviousScreen() {
+    // Navigate back to IrrigationFacilitiesScreen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => IrrigationFacilitiesScreen()),
+    );
+  }
+
+  Widget _buildTransportationContent() {
+    return Column(
+      children: [
+        // Vehicles Table
+        Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Transportation facilities data has been saved. Continue to Panchavati Trees?'),
-                SizedBox(height: 15),
-                
+                // Table Header
                 Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Color(0xFFE6E6FA),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
+                    color: Color(0xFF800080),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text('🚗 Transportation Summary:', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF800080))),
-                      SizedBox(height: 8),
-                      _buildSummaryItem('Total Vehicles:', '$totalVehicles'),
-                      
-                      // Top 3 vehicles
-                      SizedBox(height: 10),
-                      Text('Most Common Vehicles:', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF800080))),
-                      SizedBox(height: 5),
-                      ..._getTopVehicles(3).map((entry) => 
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: Text('• ${entry.key}: ${entry.value}'),
-                        )
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Vehicle Type',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Count',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ],
                   ),
                 ),
+                
+                // Vehicle Rows
+                ...vehicles.entries.map((entry) => Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          entry.key,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: TextFormField(
+                            controller: entry.value,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'Enter number',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Color(0xFF800080), width: 2),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              // No prefixIcon - empty field ready for numbers
+                            ),
+                            validator: (value) {
+                              if (value != null && value.isNotEmpty && !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                return 'Numbers only';
+                              }
+                              return null;
+                            },
+                            style: TextStyle(color: Colors.grey.shade800),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Edit', style: TextStyle(color: Color(0xFF800080))),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PanchavatiTreesScreen()),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Transportation data saved! Moving to Panchavati Trees'),
-                    backgroundColor: Color(0xFF800080),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF800080)),
-              child: Text('Continue to Panchavati Trees'),
-            ),
-          ],
         ),
-      );
-    }
-  }
-
-  List<MapEntry<String, int>> _getTopVehicles(int count) {
-    List<MapEntry<String, int>> entries = [];
-    transportationData.forEach((vehicle, controller) {
-      int value = int.tryParse(controller.text) ?? 0;
-      if (value > 0) {
-        entries.add(MapEntry(vehicle, value));
-      }
-    });
-    
-    entries.sort((a, b) => b.value.compareTo(a.value));
-    return entries.take(count).toList();
-  }
-
-  Widget _buildSummaryItem(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 150,
-            child: Text(label, style: TextStyle(fontWeight: FontWeight.w500)),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF800080)),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
-  }
-
-  void _resetForm() {
-    _formKey.currentState?.reset();
-    setState(() {
-      transportationData.forEach((_, controller) => controller.clear());
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F5F5),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Government of India Header
-            Container(
-              width: double.infinity,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Government of India',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF003366),
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Digital India',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Power To Empower',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF138808),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      color: Colors.white,
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.directions_car, color: Color(0xFF800080), size: 32),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Transportation Facilities',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Step 17: Transportation facilities available in village',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Container(
-                              height: 4,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Color(0xFF800080),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                    SizedBox(height: 25),
-                    
-                    // Transportation List
-                    Container(
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Number of Transportation Vehicles',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF800080),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          
-                          // Vehicles List
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: transportationData.length,
-                            itemBuilder: (context, index) {
-                              String vehicle = transportationData.keys.elementAt(index);
-                              TextEditingController controller = transportationData[vehicle]!;
-                              
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                                  color: index % 2 == 0 ? Colors.white : Colors.grey.shade50,
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        '${String.fromCharCode(97 + index)}) $vehicle',
-                                        style: TextStyle(fontWeight: FontWeight.w500),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: TextFormField(
-                                        controller: controller,
-                                        keyboardType: TextInputType.number,
-                                        textAlign: TextAlign.center,
-                                        decoration: InputDecoration(
-                                          hintText: '0',
-                                          border: OutlineInputBorder(),
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return '0 if none';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: 30),
-                    
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _resetForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade700,
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.refresh),
-                            label: Text('Reset Form'),
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _submitForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF800080),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            icon: Icon(Icons.arrow_forward, size: 24),
-                            label: Text(
-                              'Save & Continue',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    SizedBox(height: 20),
-                    
-                    // Progress Indicator
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFF800080).withOpacity(0.3)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.directions_car, color: Color(0xFF800080), size: 24),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Step 17: Transportation facilities data collection',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF800080),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.navigate_next, color: Colors.green.shade700, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Next: Panchavati Trees',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.green.shade800,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return FormTemplateScreen(
+      title: 'Transportation Facilities',
+      stepNumber: 'Step 17',
+      nextScreenRoute: '/village-form',
+      nextScreenName: 'Village Information',
+      icon: Icons.directions_car,
+      instructions: 'Enter number of vehicles available in the village',
+      contentWidget: _buildTransportationContent(),
+      onSubmit: _submitForm,
+      onBack: _goToPreviousScreen,
+      onReset: () {
+        setState(() {
+          vehicles.forEach((_, controller) => controller.clear());
+        });
+      },
     );
   }
 
   @override
   void dispose() {
-    transportationData.forEach((_, controller) => controller.dispose());
+    vehicles.forEach((_, controller) => controller.dispose());
     super.dispose();
   }
 }

@@ -1,5 +1,5 @@
-name: edusurvey
-description: "A new Flutter project."
+name: dri_survey
+description: "DRI Survey App - Comprehensive family survey application for Deendayal Research Institute"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -30,34 +30,45 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  google_fonts: ^7.0.2
-  flutter_riverpod: ^3.2.0
   supabase_flutter: ^2.5.1
+  connectivity_plus: ^2.3.0
   flutter_dotenv: ^6.0.0
-  flutter_launcher_icons: ^0.14.4
-  sqflite: ^2.3.0
-  path_provider: ^2.1.2
-  intl: ^0.20.2
-  animate_do: ^4.2.0
-  equatable: ^2.0.5
   flutter_localizations:
     sdk: flutter
-  csv: ^5.1.1
-  universal_html: ^2.2.4
-  connectivity_plus: ^6.0.2
+  flutter_riverpod: ^2.6.1
+  google_fonts: ^6.0.0
+  image_picker: ^0.8.5+3
+  file_picker: ^8.0.0
+  flutter_map: ^6.0.0
+  latlong2: ^0.9.0
+  location: ^8.0.1
+  sqflite: ^2.0.0+3
+  universal_html: ^2.0.0
+  csv: ^5.0.0
+  googleapis: ^13.1.0
+  googleapis_auth: ^1.6.0
+  animate_do: ^2.0.0
+  open_file: ^3.2.1
+  excel: ^4.0.6
+  uuid: ^4.2.1
+  provider: ^6.1.1
+  permission_handler: ^12.0.1
   shared_preferences: ^2.2.3
+  supabase: ^2.10.2
+  postgres: ^3.0.8
+  archive: ^3.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^5.0.0
+  build_runner: ^2.4.7
+  sqflite_common_ffi: ^2.3.3
 
 flutter_launcher_icons:
-  android: "edu_survey"
-  ios: true
-  image_path: "assets/images/edusurvey.png"
+  android: "dri_survey"
+  ios: false
+  image_path: "assets/images/logo.png"
   min_sdk_android: 33 # android min sdk min:16, default 21
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -82,6 +93,7 @@ flutter:
   assets:
     - assets/images/
     - assets/
+    - database_supabase_sqlite/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

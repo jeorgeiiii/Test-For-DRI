@@ -1,16 +1,36 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../components/logo_widget.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/locale_provider.dart';
+import '../../providers/survey_provider.dart';
+import '../../services/database_service.dart';
+import '../../services/supabase_service.dart';
+import 'package:uuid/uuid.dart';
+import '../family_survey/widgets/side_navigation.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // Update existing surveys with correct email after authentication
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateExistingSurveyEmailsIfNeeded(ref);
+    });
 
     return Scaffold(
+      drawer: SideNavigation(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -24,139 +44,230 @@ class LandingScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                // Logo/Title Section
-                FadeInDown(
-                  duration: const Duration(milliseconds: 680),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
+          child: Stack(
+            children: [
+              // Hamburger menu overlay
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Column(
+                  children: [
+                    const Spacer(flex: 2),
+                    // Logo/Title Section
+                    Column(
+                      children: [
+                        const LogoWithCircle(size: 100),
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.appTitle,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.deendayalResearchInstitute,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+
+                    const Spacer(flex: 1),
+
+                    // Description
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
                           color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.family_restroom,
-                          size: 60,
-                          color: Colors.white,
+                          width: 1,
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        l10n.appTitle,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Deendayal Research Institute',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Description
-                FadeInUp(
-                  duration: const Duration(milliseconds: 680),
-                  delay: const Duration(milliseconds: 170),
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      'Comprehensive family survey for rural development and government schemes',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 48),
-
-                // Start Button
-                FadeInUp(
-                  duration: const Duration(milliseconds: 680),
-                  delay: const Duration(milliseconds: 340),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/auth');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 8,
-                        shadowColor: Colors.black.withOpacity(0.3),
-                      ),
-                      child: Text(
-                        l10n.startFamilyQuiz,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Conduct PRA Survey',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white.withOpacity(0.95),
+                              height: 1.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'The DRI PRA Survey captures all village and families data to give a total holistic picture of the state of the village, to enable the formulation of an action plan for sustainable development of the village.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.85),
+                              height: 1.4,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
 
-                const SizedBox(height: 24),
+                    const Spacer(flex: 1),
 
-                // Language Selector
-                FadeInUp(
-                  duration: const Duration(milliseconds: 680),
-                  delay: const Duration(milliseconds: 510),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          // TODO: Implement language switching
+                    // DRI PRA Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          // Start a NEW village survey: create and persist a fresh session
+                          try {
+                            final sessionId = const Uuid().v4();
+                            DatabaseService().currentSessionId = sessionId;
+
+                            final surveyorEmail = SupabaseService.instance.currentUser?.email;
+                            final sessionData = {
+                              'session_id': sessionId,
+                              'status': 'in_progress',
+                              if (surveyorEmail != null) 'surveyor_email': surveyorEmail,
+                              'created_at': DateTime.now().toIso8601String(),
+                              'updated_at': DateTime.now().toIso8601String(),
+                            };
+
+                            await DatabaseService().createVillageSurveySession(sessionData);
+                          } catch (e) {
+                            debugPrint('Failed to create village session on landing: $e');
+                          }
+
+                          Navigator.pushNamed(context, '/village-survey');
                         },
-                        icon: const Icon(Icons.language, color: Colors.white),
-                        label: Text(
-                          l10n.selectLanguage,
-                          style: const TextStyle(color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF2E7D32),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.black.withOpacity(0.2),
+                        ),
+                        child: const Text(
+                          'Village Survey',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
 
-                const SizedBox(height: 48),
-              ],
-            ),
+                    const SizedBox(height: 16),
+
+
+                    // DRI Family Survey Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/survey');
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white, width: 2),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Family Survey',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Language Selector - Side by side
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildLanguageOption(context, ref, 'English', 'en'),
+                        const SizedBox(width: 20),
+                        _buildLanguageOption(context, ref, 'हिंदी', 'hi'),
+                      ],
+                    ),
+
+                    const Spacer(flex: 1),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildLanguageOption(BuildContext context, WidgetRef ref, String language, String code) {
+    final currentLocale = ref.watch(localeProvider);
+    final localeNotifier = ref.read(localeProvider.notifier);
+    final isSelected = currentLocale.languageCode == code;
+
+    return GestureDetector(
+      onTap: () {
+        localeNotifier.setLocale(Locale(code));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          language,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _updateExistingSurveyEmailsIfNeeded(WidgetRef ref) {
+    try {
+      final surveyNotifier = ref.read(surveyProvider.notifier);
+      surveyNotifier.updateExistingSurveyEmails();
+    } catch (e) {
+      print('Error updating existing survey emails: $e');
+    }
   }
 }
